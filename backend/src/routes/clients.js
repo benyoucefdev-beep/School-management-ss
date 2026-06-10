@@ -92,21 +92,27 @@ router.get('/:id', canView('clients'), async (req, res) => {
 
 // POST /api/clients (admin only in practice)
 router.post('/', canCreate('clients'), async (req, res) => {
-  const { company_name, contact_name, contact_email, contact_phone, assigned_manager_id, date_joined } = req.body;
+  const { company_name, contact_name, contact_email, contact_phone,
+          assigned_manager_id, date_joined,
+          student_phone, father_phone, date_of_birth, level, group_id } = req.body;
   if (!company_name) return res.status(400).json({ error: 'company_name is required' });
 
   try {
     const { rows } = await pool.query(`
-      INSERT INTO clients (company_name, contact_name, contact_email, contact_phone, assigned_manager_id, date_joined)
-      VALUES ($1, $2, $3, $4, $5, $6)
+      INSERT INTO clients (company_name, contact_name, contact_email, contact_phone,
+                           assigned_manager_id, date_joined,
+                           student_phone, father_phone, date_of_birth, level, group_id)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
       RETURNING *
-    `, [company_name, contact_name, contact_email, contact_phone, assigned_manager_id || null, date_joined || null]);
+    `, [company_name, contact_name, contact_email, contact_phone,
+        assigned_manager_id || null, date_joined || null,
+        student_phone||null, father_phone||null, date_of_birth||null, level||null, group_id||null]);
 
     await logActivity({
       clientId: rows[0].id,
       userId: req.user.id,
       actionType: 'client_created',
-      description: `Client "${company_name}" created`,
+      description: `Student "${company_name}" created`,
     });
 
     res.status(201).json(rows[0]);

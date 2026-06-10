@@ -69,6 +69,15 @@ try {
   console.error('[startup] Supplier routes failed to load:', e.message);
 }
 
+// ── Routes — School Management ──────────────────────────────────
+try {
+  app.use('/api/groups',   require('./routes/groups'));
+  app.use('/api/subjects', require('./routes/subjects'));
+  app.use('/api/parents',  require('./routes/parents'));
+} catch (e) {
+  console.error('[startup] School routes failed to load:', e.message);
+}
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString(), service: 'EduManage API' });
