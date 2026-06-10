@@ -37,14 +37,14 @@ const STYLES = `
   .login-orb-1 {
     position: fixed; top: -15%; left: -10%;
     width: 55vmax; height: 55vmax; border-radius: 50%;
-    background: radial-gradient(circle, rgba(99,102,241,0.22) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(0,180,216,0.22) 0%, transparent 70%);
     pointer-events: none;
     animation: login-orb-pulse 9s ease-in-out infinite;
   }
   .login-orb-2 {
     position: fixed; bottom: -20%; right: -10%;
     width: 50vmax; height: 50vmax; border-radius: 50%;
-    background: radial-gradient(circle, rgba(249,115,22,0.14) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(6,214,160,0.14) 0%, transparent 70%);
     pointer-events: none;
     animation: login-orb-pulse2 11s ease-in-out infinite;
   }
@@ -84,7 +84,7 @@ const STYLES = `
   .login-logo-img {
     width: 64px; height: 64px;
     border-radius: 18px;
-    box-shadow: 0 0 0 3px rgba(249,115,22,0.3), 0 8px 32px rgba(249,115,22,0.2);
+    box-shadow: 0 0 0 3px rgba(0,180,216,0.3), 0 8px 32px rgba(0,180,216,0.2);
     display: block;
   }
   .login-brand-text-wrap {
@@ -162,9 +162,9 @@ const STYLES = `
   }
   .login-input::placeholder { color: #475569; }
   .login-input:focus {
-    border-color: rgba(249,115,22,0.7);
-    background: rgba(249,115,22,0.05);
-    box-shadow: 0 0 0 3px rgba(249,115,22,0.15);
+    border-color: rgba(0,180,216,0.7);
+    background: rgba(0,180,216,0.05);
+    box-shadow: 0 0 0 3px rgba(0,180,216,0.15);
   }
   .login-input-pw { padding-right: 48px; }
 
@@ -187,7 +187,7 @@ const STYLES = `
   }
   .login-forgot-btn {
     background: none; border: none;
-    color: #f97316; font-size: 12px;
+    color: #00b4d8; font-size: 12px;
     font-weight: 600; cursor: pointer;
     font-family: inherit; padding: 0;
     transition: opacity 0.15s;
@@ -210,15 +210,15 @@ const STYLES = `
     gap: 8px;
     margin-top: 8px;
     transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
-    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    background: linear-gradient(135deg, #00b4d8 0%, #0077a8 100%);
     color: white;
-    box-shadow: 0 4px 20px rgba(249,115,22,0.35);
+    box-shadow: 0 4px 20px rgba(0,180,216,0.35);
     letter-spacing: 0.02em;
   }
   .login-submit-btn:hover:not(:disabled) {
     opacity: 0.92;
     transform: translateY(-1px);
-    box-shadow: 0 6px 28px rgba(249,115,22,0.45);
+    box-shadow: 0 6px 28px rgba(0,180,216,0.45);
   }
   .login-submit-btn:active:not(:disabled) { transform: translateY(0); }
   .login-submit-btn:disabled {
@@ -327,10 +327,10 @@ export default function LoginPage() {
       <div className="login-card">
         {/* Logo + brand */}
         <div className="login-logo-wrap">
-          <img src="/icons/logo-192.png" alt="Axialogy" className="login-logo-img" />
+          <img src="/icons/logo-192.png" alt="EduManage" className="login-logo-img" />
           <div className="login-brand-text-wrap">
-            <div className="login-brand-name">Axialogy</div>
-            <div className="login-brand-tagline">Business Management Platform</div>
+            <div className="login-brand-name">EduManage</div>
+            <div className="login-brand-tagline">School Management Platform</div>
           </div>
         </div>
 

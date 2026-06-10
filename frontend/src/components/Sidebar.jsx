@@ -126,8 +126,8 @@ export default function Sidebar({ onNav, hideLogo }) {
     <>
       {!hideLogo && (
         <div className="sidebar-logo">
-          <img src="/icons/logo-192.png" alt="Axialogy" className="sidebar-logo-icon" style={{ background: 'none', objectFit: 'cover' }} />
-          <span className="sidebar-logo-text">Axialogy</span>
+          <img src="/icons/logo-192.png" alt="EduManage" className="sidebar-logo-icon" style={{ background: 'none', objectFit: 'cover' }} />
+          <span className="sidebar-logo-text">EduManage</span>
         </div>
       )}
 
