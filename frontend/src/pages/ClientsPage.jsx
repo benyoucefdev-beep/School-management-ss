@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../lib/api';
 import Modal from '../components/Modal';
 import toast from 'react-hot-toast';
-import { Plus, Search, Building2, Mail, Phone, User, Edit3, Trash2 } from 'lucide-react';
+import { Plus, Search, GraduationCap, Mail, Phone, User, Edit3, Trash2 } from 'lucide-react';
 
 function ClientForm({ initial, users, onSubmit, onClose }) {
   const [form, setForm] = useState(() => ({
@@ -39,23 +39,23 @@ function ClientForm({ initial, users, onSubmit, onClose }) {
       <div className="modal-body">
         <div className="form-grid form-grid-2">
           <div className="form-group">
-            <label className="form-label">Client Name *</label>
-            <input className="form-input" value={form.company_name} onChange={e => set('company_name', e.target.value)} placeholder="Acme Corp" />
+            <label className="form-label">Student Full Name *</label>
+            <input className="form-input" value={form.company_name} onChange={e => set('company_name', e.target.value)} placeholder="Ahmed Benali" />
           </div>
           <div className="form-group">
-            <label className="form-label">Contact Name</label>
+            <label className="form-label">Parent Name</label>
             <input className="form-input" value={form.contact_name} onChange={e => set('contact_name', e.target.value)} placeholder="John Smith" />
           </div>
           <div className="form-group">
-            <label className="form-label">Contact Email</label>
-            <input className="form-input" type="email" value={form.contact_email} onChange={e => set('contact_email', e.target.value)} placeholder="john@acme.com" />
+            <label className="form-label">Parent Email</label>
+            <input className="form-input" type="email" value={form.contact_email} onChange={e => set('contact_email', e.target.value)} placeholder="parent@example.com" />
           </div>
           <div className="form-group">
-            <label className="form-label">Contact Phone</label>
-            <input className="form-input" value={form.contact_phone} onChange={e => set('contact_phone', e.target.value)} placeholder="+1-555-0100" />
+            <label className="form-label">Parent Phone</label>
+            <input className="form-input" value={form.contact_phone} onChange={e => set('contact_phone', e.target.value)} placeholder="0555 123 456" />
           </div>
           <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-            <label className="form-label">Assigned Managers</label>
+            <label className="form-label">Assigned Staff</label>
             {/* Selected tags */}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: selectedManagers.length ? 8 : 0 }}>
               {selectedManagers.map(u => (
@@ -80,7 +80,7 @@ function ClientForm({ initial, users, onSubmit, onClose }) {
                 value=""
                 onChange={e => { if (e.target.value) toggleManager(e.target.value); }}
               >
-                <option value="">+ Add a manager…</option>
+                <option value="">+ Add a staff member…</option>
                 {availableManagers.map(u => (
                   <option key={u.id} value={u.id}>{u.name} ({u.role})</option>
                 ))}
@@ -92,7 +92,7 @@ function ClientForm({ initial, users, onSubmit, onClose }) {
       <div className="modal-footer">
         <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
         <button className="btn btn-primary" onClick={handleSubmit}>
-          {initial ? 'Save Changes' : 'Create Client'}
+          {initial ? 'Save Changes' : 'Create Student'}
         </button>
       </div>
     </>
@@ -135,7 +135,7 @@ export default function ClientsPage() {
     onSuccess: () => {
       qc.invalidateQueries(['clients']);
       setShowCreate(false);
-      toast.success('Client created!');
+      toast.success('Student added!');
     },
     onError: (e) => toast.error(e.response?.data?.error || 'Failed'),
   });
@@ -146,7 +146,7 @@ export default function ClientsPage() {
       qc.invalidateQueries(['clients']);
       setShowCreate(false);
       setEditClient(null);
-      toast.success('Client updated!');
+      toast.success('Student updated!');
     },
     onError: (e) => toast.error(e.response?.data?.error || 'Failed to update'),
   });
@@ -155,7 +155,7 @@ export default function ClientsPage() {
     mutationFn: (id) => api.delete(`/clients/${id}`),
     onSuccess: () => {
       qc.invalidateQueries(['clients']);
-      toast.success('Client deleted!');
+      toast.success('Student deleted!');
     },
     onError: (e) => toast.error(e.response?.data?.error || 'Failed to delete'),
   });
@@ -178,13 +178,13 @@ export default function ClientsPage() {
     <div>
       <div className="page-header">
         <div>
-          <h1 className="page-title">Clients</h1>
-          <p className="page-subtitle">{data?.total || 0} total accounts</p>
+          <h1 className="page-title">Students</h1>
+          <p className="page-subtitle">{data?.total || 0} total students</p>
         </div>
         {user?.role === 'admin' && (
           <div className="page-actions">
-            <button id="create-client-btn" className="btn btn-primary" onClick={() => { setEditClient(null); setShowCreate(true); }}>
-              <Plus size={16} /> New Client
+            <button id="create-student-btn" className="btn btn-primary" onClick={() => { setEditClient(null); setShowCreate(true); }}>
+              <Plus size={16} /> New Student
             </button>
           </div>
         )}
@@ -196,7 +196,7 @@ export default function ClientsPage() {
           <Search size={16} className="search-icon" />
           <input
             className="form-input search-input"
-            placeholder="Search clients..."
+            placeholder="Search students..."
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
@@ -208,9 +208,9 @@ export default function ClientsPage() {
         <div className="loading-center"><div className="loading-spinner" /></div>
       ) : !clients.length ? (
         <div className="empty-state">
-          <div className="empty-state-icon"><Building2 size={24} style={{ color: 'var(--text-muted)' }} /></div>
-          <div className="empty-state-title">No clients yet</div>
-          <div className="empty-state-text">Add your first client to get started</div>
+          <div className="empty-state-icon"><GraduationCap size={24} style={{ color: 'var(--text-muted)' }} /></div>
+          <div className="empty-state-title">No students yet</div>
+          <div className="empty-state-text">Add your first student to get started</div>
         </div>
       ) : isMobile ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -232,7 +232,7 @@ export default function ClientsPage() {
                   transition: 'all 0.2s ease-in-out'
                 }}
               >
-                {/* Header: Contact Name, Company Subtitle & Status/Balance */}
+                {/* Header: Parent Name, Company Subtitle & Status/Balance */}
                 <div
                   style={{
                     display: 'flex',
@@ -245,7 +245,7 @@ export default function ClientsPage() {
                 >
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1 }}>
                     <span style={{ fontWeight: 700, fontSize: 15, color: 'var(--text-primary)' }}>
-                      🏢 {client.company_name}
+                      🎓 {client.company_name}
                     </span>
                   </div>
 
@@ -376,7 +376,7 @@ export default function ClientsPage() {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Client Name</th>
+                <th>Student Name</th>
                 <th>Contact</th>
                 <th>Manager</th>
                 <th>Services</th>
@@ -447,7 +447,7 @@ export default function ClientsPage() {
                             className="btn btn-secondary btn-sm"
                             style={{ padding: '4px 7px' }}
                             onClick={() => { setEditClient(client); setShowCreate(true); }}
-                            title="Edit client"
+                            title="Edit student"
                           >
                             <Edit3 size={12} />
                           </button>
@@ -455,7 +455,7 @@ export default function ClientsPage() {
                             className="btn btn-sm"
                             style={{ padding: '4px 7px', background: 'rgba(239,68,68,0.1)', color: 'var(--danger)', border: 'none' }}
                             onClick={() => { if (window.confirm(`Delete "${client.company_name}"?`)) deleteMutation.mutate(client.id); }}
-                            title="Delete client"
+                            title="Delete student"
                           >
                             <Trash2 size={12} />
                           </button>
@@ -471,7 +471,7 @@ export default function ClientsPage() {
       )}
 
       {/* Create / Edit Modal */}
-      <Modal open={showCreate} onClose={() => { setShowCreate(false); setEditClient(null); }} title={editClient ? "Edit Client" : "New Client"}>
+      <Modal open={showCreate} onClose={() => { setShowCreate(false); setEditClient(null); }} title={editClient ? "Edit Student" : "New Student"}>
         <ClientForm key={editClient ? editClient.id : 'new'} initial={editClient} users={users} onSubmit={handleSave} onClose={() => { setShowCreate(false); setEditClient(null); }} />
       </Modal>
     </div>

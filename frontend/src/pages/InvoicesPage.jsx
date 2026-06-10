@@ -337,13 +337,13 @@ export default function InvoicesPage() {
     <div>
       <div className="page-header">
         <div>
-          <h1 className="page-title">Invoices</h1>
+          <h1 className="page-title">Tuition Fees</h1>
           <p className="page-subtitle">
             {totalRevenue.toLocaleString()} DZD received · {totalOutstanding.toLocaleString()} DZD outstanding
           </p>
         </div>
         <button id="create-invoice-btn" className="btn btn-primary" onClick={() => setShowCreate(true)}>
-          <Plus size={16} /> New Invoice
+          <Plus size={16} /> New Fee
         </button>
       </div>
 
@@ -639,7 +639,7 @@ export default function InvoicesPage() {
       )}
 
       {/* Create Modal */}
-      <Modal open={showCreate} onClose={() => setShowCreate(false)} title="New Invoice" size="modal-xl">
+      <Modal open={showCreate} onClose={() => setShowCreate(false)} title="New Fee" size="modal-xl">
         <div className="modal-body">
           <div className="form-grid form-grid-2" style={{ marginBottom: 16 }}>
             <div className="form-group">
@@ -682,7 +682,7 @@ export default function InvoicesPage() {
         <div className="modal-footer">
           <button className="btn btn-secondary" onClick={() => setShowCreate(false)}>Cancel</button>
           <button className="btn btn-primary" onClick={() => createMutation.mutate(form)} disabled={!form.client_id || !form.due_date}>
-            Create Invoice
+            Create Fee Record
           </button>
         </div>
       </Modal>
@@ -753,7 +753,7 @@ export default function InvoicesPage() {
         )}
       </Modal>
 
-      {/* Edit Invoice Modal */}
+      {/* Edit Fee Modal */}
       <Modal open={!!editInvoice} onClose={() => setEditInvoice(null)} title={`Edit ${editInvoice?.invoice_number || 'Invoice'}`} size="modal-xl">
         <div className="modal-body">
           {editDetail ? (

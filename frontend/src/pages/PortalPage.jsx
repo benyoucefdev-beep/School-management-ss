@@ -191,7 +191,7 @@ function RegisterScreen({ companyName, token, onSuccess, onSwitchToLogin }) {
       <div className="auth-card" style={{ width: '100%', maxWidth: 420 }}>
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
           <div style={{ width: 64, height: 64, borderRadius: 20, background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, marginBottom: 14, boxShadow: '0 8px 24px rgba(99,102,241,0.35)' }}>◆</div>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#6366f1', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6 }}>Axialogy Client Portal</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#6366f1', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6 }}>Axialogy Student Portal</div>
           <h1 style={{ fontSize: 24, fontWeight: 800, color: '#1e293b', margin: 0 }}>Create your account</h1>
           <p style={{ color: '#64748b', fontSize: 14, marginTop: 6 }}>Welcome, <strong>{companyName}</strong>!</p>
         </div>
@@ -246,7 +246,7 @@ function LoginScreen({ companyName, token, onSuccess, onSwitchToRegister }) {
       <div className="auth-card" style={{ width: '100%', maxWidth: 420 }}>
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
           <div style={{ width: 64, height: 64, borderRadius: 20, background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, marginBottom: 14, boxShadow: '0 8px 24px rgba(99,102,241,0.35)' }}>◆</div>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#6366f1', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6 }}>Axialogy Client Portal</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#6366f1', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6 }}>Axialogy Student Portal</div>
           <h1 style={{ fontSize: 24, fontWeight: 800, color: '#1e293b', margin: 0 }}>Welcome back</h1>
           <p style={{ color: '#64748b', fontSize: 14, marginTop: 6 }}>Sign in to <strong>{companyName}</strong>'s portal</p>
         </div>
@@ -574,7 +574,7 @@ function PortalContent({ token, qc, onLogout }) {
           {/* Top row — info left, buttons right */}
           <div className="portal-header-top">
             <div className="portal-header-info">
-              <div style={{ fontSize: 11, fontWeight: 700, color: '#6366f1', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6 }}>◆ Axialogy Client Portal</div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#6366f1', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6 }}>◆ Axialogy Student Portal</div>
               <h1 style={{ fontSize: 22, fontWeight: 800, margin: '0 0 6px', wordBreak: 'break-word' }}>{profile.company_name}</h1>
               <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', fontSize: 12, color: '#94a3b8' }}>
                 {profile.contact_name  && <span>👤 {profile.contact_name}</span>}

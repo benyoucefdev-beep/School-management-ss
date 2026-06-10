@@ -179,7 +179,7 @@ function WorkingToggle({ task, userId, onToggle }) {
   return (
     <button
       onClick={() => onToggle(task.id)}
-      title={isMe ? 'Click to stop working on this task' : 'Click to start working on this task'}
+      title={isMe ? 'Click to stop teaching' : 'Click to mark as teaching'}
       style={{
         display: 'inline-flex', alignItems: 'center', gap: 6,
         padding: '3px 10px', borderRadius: 20, cursor: 'pointer',
@@ -264,20 +264,20 @@ function TaskModal({ task, users, clients, onSave, onClose }) {
     <>
       <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         <div className="form-group">
-          <label className="form-label">Task Title *</label>
-          <input className="form-input" value={form.title} onChange={e => set('title', e.target.value)} placeholder="What needs to be done?" autoFocus />
+          <label className="form-label">Class Title *</label>
+          <input className="form-input" value={form.title} onChange={e => set('title', e.target.value)} placeholder="e.g. Math - Algebra Chapter 3" autoFocus />
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
           <div className="form-group">
-            <label className="form-label">Client *</label>
+            <label className="form-label">Student *</label>
             <select className="form-select" value={form.client_id} onChange={e => set('client_id', e.target.value)}>
-              <option value="">— Select client —</option>
+              <option value="">— Select student —</option>
               {clients?.map(c => <option key={c.id} value={c.id}>{c.company_name}</option>)}
             </select>
           </div>
           <div className="form-group">
-            <label className="form-label">Service Type</label>
+            <label className="form-label">Subject</label>
             <select className="form-select" value={form.service_type} onChange={e => set('service_type', e.target.value)}>
               <option value="">— None —</option>
               {SERVICE_OPTIONS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
@@ -333,23 +333,23 @@ function TaskModal({ task, users, clients, onSave, onClose }) {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
           <div className="form-group">
             <label className="form-label">Notes</label>
-            <textarea className="form-textarea" rows={2} value={form.notes || ''} onChange={e => set('notes', e.target.value)} placeholder="Internal notes..." />
+            <textarea className="form-textarea" rows={2} value={form.notes || ''} onChange={e => set('notes', e.target.value)} placeholder="Teacher notes..." />
           </div>
           <div className="form-group">
-            <label className="form-label">Needs After Completing</label>
-            <textarea className="form-textarea" rows={2} value={form.needs_after || ''} onChange={e => set('needs_after', e.target.value)} placeholder="What should happen next?" />
+            <label className="form-label">Next Session Plan</label>
+            <textarea className="form-textarea" rows={2} value={form.needs_after || ''} onChange={e => set('needs_after', e.target.value)} placeholder="Next session plan..." />
           </div>
         </div>
 
         <div className="form-group">
           <label className="form-label">Description</label>
-          <textarea className="form-textarea" rows={2} value={form.description || ''} onChange={e => set('description', e.target.value)} placeholder="Task details..." />
+          <textarea className="form-textarea" rows={2} value={form.description || ''} onChange={e => set('description', e.target.value)} placeholder="Class description..." />
         </div>
       </div>
       <div className="modal-footer">
         <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
         <button className="btn btn-primary" onClick={() => onSave(form)} disabled={!form.title || !form.client_id}>
-          {task ? 'Save Changes' : 'Create Task'}
+          {task ? 'Save Changes' : 'Create Class'}
         </button>
       </div>
     </>
@@ -411,15 +411,15 @@ export default function TasksPage() {
 
   const createMutation = useMutation({
     mutationFn: body => api.post('/tasks', body),
-    onSuccess: () => { qc.invalidateQueries(['tasks']); setShowModal(false); toast.success('Task created'); },
-    onError: e => toast.error(e.response?.data?.error || 'Failed to create task'),
+    onSuccess: () => { qc.invalidateQueries(['tasks']); setShowModal(false); toast.success('Class created'); },
+    onError: e => toast.error(e.response?.data?.error || 'Failed to create class'),
   });
 
   // Full-edit mutation (modal save) — invalidates to get fresh server data
   const updateMutation = useMutation({
     mutationFn: ({ id, ...body }) => api.put(`/tasks/${id}`, body),
-    onSuccess: () => { qc.invalidateQueries(['tasks']); setEditTask(null); setShowModal(false); toast.success('Task updated'); },
-    onError: e => toast.error(e.response?.data?.error || 'Failed to update'),
+    onSuccess: () => { qc.invalidateQueries(['tasks']); setEditTask(null); setShowModal(false); toast.success('Class updated'); },
+    onError: e => toast.error(e.response?.data?.error || 'Failed to update class'),
   });
 
   // Optimistic quick-update (inline status / progress / notes)
@@ -437,7 +437,7 @@ export default function TasksPage() {
     },
     onError: (e, _vars, ctx) => {
       if (ctx?.previous) qc.setQueryData(ctx.queryKey, ctx.previous);
-      toast.error(e.response?.data?.error || 'Failed to update');
+      toast.error(e.response?.data?.error || 'Failed to update class');
     },
     onSettled: (_data, _err, _vars, ctx) => {
       // Reconcile with server silently in background
@@ -447,8 +447,8 @@ export default function TasksPage() {
 
   const deleteMutation = useMutation({
     mutationFn: id => api.delete(`/tasks/${id}`),
-    onSuccess: () => { qc.invalidateQueries(['tasks']); toast.success('Task deleted'); },
-    onError: e => toast.error(e.response?.data?.error || 'Failed to delete'),
+    onSuccess: () => { qc.invalidateQueries(['tasks']); toast.success('Class deleted'); },
+    onError: e => toast.error(e.response?.data?.error || 'Failed to delete class'),
   });
 
   // Working toggle mutation — optimistically update active_worker_ids[]
@@ -504,7 +504,7 @@ export default function TasksPage() {
 
   // Group by client for the spreadsheet look
   const grouped = filtered.reduce((acc, t) => {
-    const key = t.client_name || 'No Client';
+    const key = t.client_name || 'No Student';
     if (!acc[key]) acc[key] = [];
     acc[key].push(t);
     return acc;
@@ -515,12 +515,12 @@ export default function TasksPage() {
       {/* Header */}
       <div className="page-header">
         <div>
-          <h1 className="page-title">All Tasks</h1>
-          <p className="page-subtitle">{filtered.length} tasks{!isAdmin ? ' — read only' : ''}</p>
+          <h1 className="page-title">All Classes</h1>
+          <p className="page-subtitle">{filtered.length} classes{!isAdmin ? ' — — read only' : ''}</p>
         </div>
         {isAdmin && (
-          <button id="create-task-btn" className="btn btn-primary" onClick={() => { setEditTask(null); setShowModal(true); }}>
-            <Plus size={16} /> New Task
+          <button id="create-class-btn" className="btn btn-primary" onClick={() => { setEditTask(null); setShowModal(true); }}>
+            <Plus size={16} /> New Class
           </button>
         )}
       </div>
@@ -534,7 +534,7 @@ export default function TasksPage() {
               <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
               <input
                 className="form-input"
-                placeholder="Search tasks..."
+                placeholder="Search classes..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 style={{ paddingLeft: 32 }}
@@ -588,14 +588,14 @@ export default function TasksPage() {
                   <div>
                     <label className="form-label" style={{ marginBottom: 4 }}>Client</label>
                     <select className="form-select" value={filterClient} onChange={e => setFilterClient(e.target.value)}>
-                      <option value="">All Clients</option>
+                      <option value="">All Students</option>
                       {clientsList?.map(c => <option key={c.id} value={c.id}>{c.company_name}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="form-label" style={{ marginBottom: 4 }}>Service Type</label>
+                    <label className="form-label" style={{ marginBottom: 4 }}>Subject</label>
                     <select className="form-select" value={filterService} onChange={e => setFilterService(e.target.value)}>
-                      <option value="">All Services</option>
+                      <option value="">All Subjects</option>
                       {SERVICE_OPTIONS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
                     </select>
                   </div>
@@ -634,7 +634,7 @@ export default function TasksPage() {
             <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
             <input
               className="form-input"
-              placeholder={isAdmin ? "Search tasks, clients..." : "Search tasks..."}
+              placeholder={isAdmin ? "Search classes, students..." : "Search classes..."}
               value={search}
               onChange={e => setSearch(e.target.value)}
               style={{ paddingLeft: 32 }}
@@ -648,11 +648,11 @@ export default function TasksPage() {
                 {usersList?.map(u => u.id !== user?.id && <option key={u.id} value={u.id}>{u.name}</option>)}
               </select>
               <select className="form-select" style={{ width: 170 }} value={filterClient} onChange={e => setFilterClient(e.target.value)}>
-                <option value="">All Clients</option>
+                <option value="">All Students</option>
                 {clientsList?.map(c => <option key={c.id} value={c.id}>{c.company_name}</option>)}
               </select>
               <select className="form-select" style={{ width: 160 }} value={filterService} onChange={e => setFilterService(e.target.value)}>
-                <option value="">All Services</option>
+                <option value="">All Subjects</option>
                 {SERVICE_OPTIONS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
               </select>
             </>
@@ -717,7 +717,7 @@ export default function TasksPage() {
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1 }}>
                     <span style={{ fontWeight: 700, fontSize: 14, color: 'var(--text-primary)' }}>
-                      📁 {clientName}
+                      🎓 {clientName}
                     </span>
                   </div>
 
@@ -731,7 +731,7 @@ export default function TasksPage() {
                       fontWeight: 800,
                       textTransform: 'uppercase'
                     }}>
-                      {clientTasks.length} {clientTasks.length === 1 ? 'task' : 'tasks'}
+                      {clientTasks.length} {clientTasks.length === 1 ? 'class' : 'classes'}
                     </span>
                     <button
                       onClick={(e) => { e.stopPropagation(); toggleClientAccordion(clientName); }}
@@ -807,7 +807,7 @@ export default function TasksPage() {
                             />
                           </div>
 
-                          {/* Task Title */}
+                          {/* Class Title */}
                           <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--text-primary)', lineHeight: 1.3 }}>
                             {task.title}
                           </div>

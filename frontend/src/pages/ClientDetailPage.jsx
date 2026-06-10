@@ -274,7 +274,7 @@ export default function ClientDetailPage() {
         </button>
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
-            <h1 className="page-title" style={{ margin: 0 }}>{client.company_name}</h1>
+            <h1 className="page-title" style={{ margin: 0 }}>{client.student_name}</h1>
             {/* Status Dropdown */}
             {user?.role === 'admin' ? (
               <div style={{ position: 'relative' }}>
@@ -347,7 +347,7 @@ export default function ClientDetailPage() {
             <button
               className="btn btn-danger"
               onClick={() => {
-                if (window.confirm(`Delete "${client.company_name}"?`)) {
+                if (window.confirm(`Delete "${client.student_name}"?`)) {
                   api.delete(`/clients/${client.id}`).then(() => {
                     toast.success('Client deleted');
                     navigate('/clients');
@@ -416,9 +416,9 @@ export default function ClientDetailPage() {
             </div>
           </div>
 
-          {/* Active Services */}
+          {/* Enrolled Subjects */}
           <div className="card">
-            <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 12 }}>Active Services</h3>
+            <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 12 }}>Enrolled Subjects</h3>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
               {client.services?.filter(s => s.is_active).map(s => (
                 <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px', background: 'var(--bg)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)' }}>
@@ -681,7 +681,7 @@ export default function ClientDetailPage() {
           {/* Summary bar */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 24 }}>
             {[
-              { label: 'Wallet Balance', value: `${fmt(walletBalance)} DZD`, icon: Wallet, color: walletBalance >= 0 ? '#10b981' : '#ef4444' },
+              { label: 'Payment Balance', value: `${fmt(walletBalance)} DZD`, icon: Wallet, color: walletBalance >= 0 ? '#10b981' : '#ef4444' },
               { label: 'Total Spent (USD)', value: `$${fmt(totalSpendUsd)}`, icon: TrendingDown, color: '#f97316' },
               { label: 'Total Spent (DZD)', value: `${fmt(totalSpendDzd)} DZD`, icon: Receipt, color: '#8b5cf6' },
             ].map(({ label, value, icon: Icon, color }) => (
@@ -1173,24 +1173,24 @@ export default function ClientDetailPage() {
         </div>
       </Modal>
 
-      {/* ══ Modal: Edit Client ══ */}
-      <Modal open={showEditClient} onClose={() => setShowEditClient(false)} title="Edit Client">
+      {/* ══ Modal: Edit Student ══ */}
+      <Modal open={showEditClient} onClose={() => setShowEditClient(false)} title="Edit Student">
         <div className="modal-body">
           <div className="form-grid form-grid-2">
             <div className="form-group">
               <label className="form-label">Client Name</label>
-              <input className="form-input" value={editForm.company_name || ''} onChange={e => setEditForm(f => ({ ...f, company_name: e.target.value }))} />
+              <input className="form-input" value={editForm.student_name || ''} onChange={e => setEditForm(f => ({ ...f, student_name: e.target.value }))} />
             </div>
             <div className="form-group">
-              <label className="form-label">Contact Name</label>
+              <label className="form-label">Parent Name</label>
               <input className="form-input" value={editForm.contact_name || ''} onChange={e => setEditForm(f => ({ ...f, contact_name: e.target.value }))} />
             </div>
             <div className="form-group">
-              <label className="form-label">Contact Email</label>
+              <label className="form-label">Parent Email</label>
               <input className="form-input" type="email" value={editForm.contact_email || ''} onChange={e => setEditForm(f => ({ ...f, contact_email: e.target.value }))} />
             </div>
             <div className="form-group">
-              <label className="form-label">Contact Phone</label>
+              <label className="form-label">Parent Phone</label>
               <input className="form-input" value={editForm.contact_phone || ''} onChange={e => setEditForm(f => ({ ...f, contact_phone: e.target.value }))} />
             </div>
             <div className="form-group">
@@ -1218,7 +1218,7 @@ export default function ClientDetailPage() {
           <Modal open={showQr} onClose={() => setShowQr(false)} title="📱 Client Portal QR Code">
             <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20, textAlign: 'center' }}>
               <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: 0 }}>
-                Share this QR code with <strong>{client.company_name}</strong>. When scanned, they'll be asked to register or log in, then see their profile, tasks, wallet, and documents.
+                Share this QR code with <strong>{client.student_name}</strong>. When scanned, they'll be asked to register or log in, then see their profile, tasks, wallet, and documents.
               </p>
 
               {/* QR Image */}
@@ -1243,7 +1243,7 @@ export default function ClientDetailPage() {
                   <ExternalLink size={14} /> Copy Link
                 </button>
                 {client.portal_token && (
-                  <a href={qrSrc} download={`${client.company_name}-portal-qr.png`} target="_blank" rel="noreferrer" className="btn btn-primary">
+                  <a href={qrSrc} download={`${client.student_name}-portal-qr.png`} target="_blank" rel="noreferrer" className="btn btn-primary">
                     <Download size={14} /> Download QR
                   </a>
                 )}

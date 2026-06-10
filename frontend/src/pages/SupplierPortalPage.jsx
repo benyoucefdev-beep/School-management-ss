@@ -134,7 +134,7 @@ function RegisterScreen({ supplierName, token, onSuccess, onSwitchToLogin }) {
       <div className="sp-fadeup" style={{ width:'100%', maxWidth:420 }}>
         <div style={{ textAlign:'center', marginBottom:28 }}>
           <div style={{ width:64, height:64, borderRadius:20, background:'linear-gradient(135deg,#f97316,#ea580c)', display:'inline-flex', alignItems:'center', justifyContent:'center', fontSize:28, marginBottom:14, boxShadow:'0 8px 24px rgba(249,115,22,.35)' }}>🏭</div>
-          <div style={{ fontSize:13, fontWeight:700, color:'#f97316', letterSpacing:'0.1em', textTransform:'uppercase', marginBottom:6 }}>Axialogy · Supplier Portal</div>
+          <div style={{ fontSize:13, fontWeight:700, color:'#f97316', letterSpacing:'0.1em', textTransform:'uppercase', marginBottom:6 }}>Axialogy · Teacher Portal</div>
           <h1 style={{ fontSize:24, fontWeight:800, color:'#1e293b', margin:0 }}>Create your account</h1>
           <p style={{ color:'#64748b', fontSize:14, marginTop:6 }}>Welcome, <strong>{supplierName}</strong>!</p>
         </div>
@@ -182,7 +182,7 @@ function LoginScreen({ supplierName, token, onSuccess, onSwitchToRegister }) {
       <div className="sp-fadeup" style={{ width:'100%', maxWidth:420 }}>
         <div style={{ textAlign:'center', marginBottom:28 }}>
           <div style={{ width:64, height:64, borderRadius:20, background:'linear-gradient(135deg,#f97316,#ea580c)', display:'inline-flex', alignItems:'center', justifyContent:'center', fontSize:28, marginBottom:14, boxShadow:'0 8px 24px rgba(249,115,22,.35)' }}>🏭</div>
-          <div style={{ fontSize:13, fontWeight:700, color:'#f97316', letterSpacing:'0.1em', textTransform:'uppercase', marginBottom:6 }}>Axialogy · Supplier Portal</div>
+          <div style={{ fontSize:13, fontWeight:700, color:'#f97316', letterSpacing:'0.1em', textTransform:'uppercase', marginBottom:6 }}>Axialogy · Teacher Portal</div>
           <h1 style={{ fontSize:24, fontWeight:800, color:'#1e293b', margin:0 }}>Welcome back</h1>
           <p style={{ color:'#64748b', fontSize:14, marginTop:6 }}>Sign in to <strong>{supplierName}</strong>'s portal</p>
         </div>
@@ -219,7 +219,7 @@ export default function SupplierPortalPage() {
   // Unified-login check: supplier logged in via the main login page
   const isUnifiedAuth = authUser?.role === 'supplier' && authUser?.portal_token === token;
 
-  // ── Lock navigation to this supplier portal URL ────────────────
+  // ── Lock navigation to this teacher portal URL ────────────────
   // Prevents the back button from escaping the portal scope.
   useEffect(() => {
     const portalUrl = window.location.href;
@@ -401,7 +401,7 @@ function SupplierPortalDashboard({ token, qc, onLogout }) {
           {/* Top row */}
           <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:12, flexWrap:'wrap' }}>
             <div style={{ flex:1, minWidth:0 }}>
-              <div style={{ fontSize:11, fontWeight:700, color:'#fb923c', letterSpacing:'0.12em', textTransform:'uppercase', marginBottom:4 }}>🏭 Axialogy · Supplier Portal</div>
+              <div style={{ fontSize:11, fontWeight:700, color:'#fb923c', letterSpacing:'0.12em', textTransform:'uppercase', marginBottom:4 }}>🏭 Axialogy · Teacher Portal</div>
               <h1 style={{ fontSize:20, fontWeight:800, margin:'0 0 4px', wordBreak:'break-word' }}>{portal.name}</h1>
               <div style={{ display:'flex', gap:10, flexWrap:'wrap', fontSize:12, color:'#fed7aa' }}>
                 {portal.contact_name  && <span>👤 {portal.contact_name}</span>}

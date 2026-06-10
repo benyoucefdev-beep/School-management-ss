@@ -9,10 +9,10 @@ import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 
 const TYPES = [
-  { id: 'all', label: 'All Suppliers' },
-  { id: 'software_tool', label: 'Software & Tools' },
-  { id: 'printing_house', label: 'Printing Houses' },
-  { id: 'euro_supplier', label: 'Euro Suppliers' }
+  { id: 'all', label: 'All Teachers' },
+  { id: 'software_tool', label: 'Full-Time' },
+  { id: 'printing_house', label: 'Part-Time' },
+  { id: 'euro_supplier', label: 'Contract' }
 ];
 
 export default function SuppliersPage() {
@@ -27,7 +27,7 @@ export default function SuppliersPage() {
   
   const [form, setForm] = useState({ 
     name: '', type_name: 'software_tool', contact_email: '', contact_phone: '', 
-    country: '', currency: 'EUR', payment_terms: '', notes: '' 
+    specialization: '', currency: 'EUR', payment_terms: '', notes: '' 
   });
   
   const [isMobile, setIsMobile] = useState(false);
@@ -57,10 +57,10 @@ export default function SuppliersPage() {
     onSuccess: () => {
       qc.invalidateQueries(['suppliers']);
       setShowAdd(false);
-      setForm({ name: '', type_name: 'software_tool', contact_email: '', contact_phone: '', country: '', currency: 'EUR', payment_terms: '', notes: '' });
-      toast.success('Supplier created successfully');
+      setForm({ name: '', type_name: 'software_tool', contact_email: '', contact_phone: '', specialization: '', currency: 'EUR', payment_terms: '', notes: '' });
+      toast.success('Teacher added!');
     },
-    onError: (err) => toast.error(err.response?.data?.error || 'Failed to create supplier')
+    onError: (err) => toast.error(err.response?.data?.error || 'Failed to add teacher')
   });
 
   const updateSupplier = useMutation({
@@ -69,19 +69,19 @@ export default function SuppliersPage() {
       qc.invalidateQueries(['suppliers']);
       setShowAdd(false);
       setEditSupplier(null);
-      setForm({ name: '', type_name: 'software_tool', contact_email: '', contact_phone: '', country: '', currency: 'EUR', payment_terms: '', notes: '' });
-      toast.success('Supplier updated successfully');
+      setForm({ name: '', type_name: 'software_tool', contact_email: '', contact_phone: '', specialization: '', currency: 'EUR', payment_terms: '', notes: '' });
+      toast.success('Teacher updated!');
     },
-    onError: (err) => toast.error(err.response?.data?.error || 'Failed to update supplier')
+    onError: (err) => toast.error(err.response?.data?.error || 'Failed to update teacher')
   });
 
   const deleteSupplier = useMutation({
     mutationFn: (id) => api.delete(`/suppliers/${id}`),
     onSuccess: () => {
       qc.invalidateQueries(['suppliers']);
-      toast.success('Supplier deleted');
+      toast.success('Teacher deleted!');
     },
-    onError: (err) => toast.error(err.response?.data?.error || 'Failed to delete supplier')
+    onError: (err) => toast.error(err.response?.data?.error || 'Failed to delete teacher')
   });
 
   const handleSave = () => {
@@ -91,18 +91,18 @@ export default function SuppliersPage() {
 
   const filtered = (suppliers || []).filter(s => 
     s.name.toLowerCase().includes(search.toLowerCase()) || 
-    (s.country && s.country.toLowerCase().includes(search.toLowerCase()))
+    (s.specialization && s.specialization.toLowerCase().includes(search.toLowerCase()))
   );
 
   return (
     <div className="page-container">
       <div className="page-header">
         <div>
-          <h1 className="page-title">Suppliers</h1>
-          <p className="page-subtitle">Manage software, printing, and international suppliers</p>
+          <h1 className="page-title">Teachers</h1>
+          <p className="page-subtitle">Manage your teaching staff</p>
         </div>
-        <button className="btn btn-primary" onClick={() => { setEditSupplier(null); setForm({ name: '', type_name: 'software_tool', contact_email: '', contact_phone: '', country: '', currency: 'EUR', payment_terms: '', notes: '' }); setShowAdd(true); }}>
-          <Plus size={16} /> Add Supplier
+        <button className="btn btn-primary" onClick={() => { setEditSupplier(null); setForm({ name: '', type_name: 'software_tool', contact_email: '', contact_phone: '', specialization: '', currency: 'EUR', payment_terms: '', notes: '' }); setShowAdd(true); }}>
+          <Plus size={16} /> Add Teacher
         </button>
       </div>
 
@@ -114,7 +114,7 @@ export default function SuppliersPage() {
               <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
               <input
                 className="form-input"
-                placeholder="Search suppliers..."
+                placeholder="Search teachers..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 style={{ paddingLeft: 32 }}
@@ -153,7 +153,7 @@ export default function SuppliersPage() {
           {showMobileFilters && (
             <div className="card card-sm" style={{ display: 'flex', flexDirection: 'column', gap: 12, background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)' }}>
               <div>
-                <label className="form-label" style={{ marginBottom: 4 }}>Supplier Type</label>
+                <label className="form-label" style={{ marginBottom: 4 }}>Teacher Type</label>
                 <select className="form-select" value={filterType} onChange={e => setFilterType(e.target.value)}>
                   {TYPES.map(t => (
                     <option key={t.id} value={t.id}>{t.label}</option>
@@ -184,7 +184,7 @@ export default function SuppliersPage() {
             </div>
             <div style={{ position: 'relative', width: 250 }}>
               <Search size={16} style={{ position: 'absolute', left: 10, top: 10, color: 'var(--text-muted)' }} />
-              <input type="text" placeholder="Search by name or country..." value={search} onChange={e => setSearch(e.target.value)} style={{ width: '100%', padding: '8px 12px 8px 32px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text-primary)' }} />
+              <input type="text" placeholder="Search by name or subject..." value={search} onChange={e => setSearch(e.target.value)} style={{ width: '100%', padding: '8px 12px 8px 32px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text-primary)' }} />
             </div>
           </div>
         </div>
@@ -226,7 +226,7 @@ export default function SuppliersPage() {
                   >
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1 }}>
                       <span style={{ fontWeight: 700, fontSize: 15, color: 'var(--text-primary)' }}>
-                        📦 {s.name}
+                        👨‍🏫 {s.name}
                       </span>
                       <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
                         {TYPES.find(t => t.id === s.type_name)?.label || s.type_name}
@@ -264,12 +264,12 @@ export default function SuppliersPage() {
                     <div className="sp-fadein" style={{ display: 'flex', flexDirection: 'column', gap: 12, borderTop: '1px solid var(--border)', paddingTop: 12, marginTop: 4 }}>
                       
                       {/* Info block */}
-                      {(s.country || s.payment_terms || s.contact_email || s.contact_phone) && (
+                      {(s.specialization || s.payment_terms || s.contact_email || s.contact_phone) && (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 4, background: 'var(--bg-surface)', borderRadius: 10, padding: 10, border: '1px solid var(--border)', fontSize: 12 }}>
-                          {s.country && (
+                          {s.specialization && (
                             <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--text-secondary)' }}>
                               <span style={{ width: 16, textAlign: 'center' }}>🌍</span>
-                              <span>{s.country}</span>
+                              <span>{s.specialization}</span>
                             </div>
                           )}
                           {s.payment_terms && (
@@ -357,7 +357,7 @@ export default function SuppliersPage() {
                 </div>
               );
             })}
-            {!filtered.length && <div style={{ textAlign: 'center', padding: 20, color: 'var(--text-muted)' }}>No suppliers found</div>}
+            {!filtered.length && <div style={{ textAlign: 'center', padding: 20, color: 'var(--text-muted)' }}>No teachers found</div>}
           </div>
         ) : (
           <table className="data-table">
@@ -365,7 +365,7 @@ export default function SuppliersPage() {
               <tr>
                 <th>Status</th>
                 <th>Name & Type</th>
-                <th>Country</th>
+                <th>Specialization</th>
                 <th style={{ textAlign: 'right' }}>Total Owed</th>
                 <th style={{ textAlign: 'right' }}>Paid</th>
                 <th style={{ textAlign: 'right' }}>Balance</th>
@@ -382,7 +382,7 @@ export default function SuppliersPage() {
                     <div style={{ fontWeight: 600 }}>{s.name}</div>
                     <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{TYPES.find(t => t.id === s.type_name)?.label || s.type_name}</div>
                   </td>
-                  <td>{s.country || '—'}</td>
+                  <td>{s.specialization || '—'}</td>
                   <td style={{ textAlign: 'right', fontWeight: 600 }}>{parseFloat(s.total_owed).toFixed(2)} DZD</td>
                   <td style={{ textAlign: 'right', color: 'var(--success)' }}>{parseFloat(s.total_paid).toFixed(2)} DZD</td>
                   <td style={{ textAlign: 'right', color: parseFloat(s.total_owed) - parseFloat(s.total_paid) > 0 ? 'var(--warning)' : 'inherit' }}>
@@ -396,7 +396,7 @@ export default function SuppliersPage() {
                             className="btn btn-secondary btn-sm"
                             style={{ padding: '4px 7px' }}
                             onClick={() => handleEdit(s)}
-                            title="Edit supplier"
+                            title="Edit teacher"
                           >
                             <Edit3 size={12} />
                           </button>
@@ -404,7 +404,7 @@ export default function SuppliersPage() {
                             className="btn btn-sm"
                             style={{ padding: '4px 7px', background: 'rgba(239,68,68,0.1)', color: 'var(--danger)', border: 'none' }}
                             onClick={() => { if (window.confirm(`Delete "${s.name}"?`)) deleteSupplier.mutate(s.id); }}
-                            title="Delete supplier"
+                            title="Delete teacher"
                           >
                             <Trash2 size={12} />
                           </button>
@@ -414,13 +414,13 @@ export default function SuppliersPage() {
                   </td>
                 </tr>
               ))}
-              {!filtered.length && <tr><td colSpan="6" style={{ textAlign: 'center', padding: 20 }}>No suppliers found</td></tr>}
+              {!filtered.length && <tr><td colSpan="6" style={{ textAlign: 'center', padding: 20 }}>No teachers found</td></tr>}
             </tbody>
           </table>
         )}
       </div>
 
-      <Modal open={showAdd} onClose={() => { setShowAdd(false); setEditSupplier(null); setForm({ name: '', type_name: 'software_tool', contact_email: '', contact_phone: '', country: '', currency: 'EUR', payment_terms: '', notes: '' }); }} title={editSupplier ? "Edit Supplier" : "Add Supplier"}>
+      <Modal open={showAdd} onClose={() => { setShowAdd(false); setEditSupplier(null); setForm({ name: '', type_name: 'software_tool', contact_email: '', contact_phone: '', specialization: '', currency: 'EUR', payment_terms: '', notes: '' }); }} title={editSupplier ? "Edit Teacher" : "Add Teacher"}>
         <div className="modal-body">
           <div className="form-grid form-grid-2">
             <div className="form-group">
@@ -431,7 +431,7 @@ export default function SuppliersPage() {
             </div>
             <div className="form-group">
               <label className="form-label">Name *</label>
-              <input type="text" className="form-input" value={form.name} onChange={e => setForm({...form, name: e.target.value})} placeholder="Supplier name" />
+              <input type="text" className="form-input" value={form.name} onChange={e => setForm({...form, name: e.target.value})} placeholder="Teacher full name" />
             </div>
             <div className="form-group">
               <label className="form-label">Email Address</label>
@@ -442,20 +442,20 @@ export default function SuppliersPage() {
               <input type="tel" className="form-input" value={form.contact_phone} onChange={e => setForm({...form, contact_phone: e.target.value})} />
             </div>
             <div className="form-group">
-              <label className="form-label">Country</label>
-              <input type="text" className="form-input" value={form.country} onChange={e => setForm({...form, country: e.target.value})} />
+              <label className="form-label">Specialization</label>
+              <input type="text" className="form-input" value={form.specialization} onChange={e => setForm({...form, specialization: e.target.value})} />
             </div>
 
           </div>
           <div className="form-group" style={{ marginTop: 16 }}>
-            <label className="form-label">Payment Terms</label>
-            <input type="text" className="form-input" value={form.payment_terms} onChange={e => setForm({...form, payment_terms: e.target.value})} placeholder="e.g. Net 30, End of Month" />
+            <label className="form-label">Contract Details</label>
+            <input type="text" className="form-input" value={form.payment_terms} onChange={e => setForm({...form, payment_terms: e.target.value})} placeholder="e.g. Full-time, 3-month contract" />
           </div>
         </div>
         <div className="modal-footer">
-          <button className="btn btn-secondary" onClick={() => { setShowAdd(false); setEditSupplier(null); setForm({ name: '', type_name: 'software_tool', contact_email: '', contact_phone: '', country: '', currency: 'EUR', payment_terms: '', notes: '' }); }}>Cancel</button>
+          <button className="btn btn-secondary" onClick={() => { setShowAdd(false); setEditSupplier(null); setForm({ name: '', type_name: 'software_tool', contact_email: '', contact_phone: '', specialization: '', currency: 'EUR', payment_terms: '', notes: '' }); }}>Cancel</button>
           <button className="btn btn-primary" onClick={handleSave} disabled={addSupplier.isPending || updateSupplier.isPending || !form.name}>
-            {editSupplier ? 'Save Changes' : 'Create Supplier'}
+            {editSupplier ? 'Save Changes' : 'Save Teacher'}
           </button>
         </div>
       </Modal>

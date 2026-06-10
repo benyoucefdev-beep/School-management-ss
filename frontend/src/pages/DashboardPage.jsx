@@ -63,7 +63,7 @@ export default function DashboardPage() {
     </div>
   );
 
-  const { stats, recent_activity, clients_health } = data || {};
+  const { stats, recent_activity, students_health } = data || {};
   const fmt = (n) => (n ?? 0).toLocaleString('en-US', { minimumFractionDigits: 0 });
 
   return (
@@ -133,18 +133,18 @@ export default function DashboardPage() {
               to="/finance/pl"
             />
             <StatCard
-              label="Active Clients"
-              value={stats?.active_clients ?? 0}
+              label="Active Students"
+              value={stats?.active_students ?? 0}
               icon={Users}
               color="var(--accent)"
               sub="Total accounts"
-              to="/clients"
+              to="/students"
             />
           </>
         )}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: (clients_health?.length && isAdmin && !isMobile) ? '1fr 340px' : '1fr', gap: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: (students_health?.length && isAdmin && !isMobile) ? '1fr 340px' : '1fr', gap: 24 }}>
         {/* Recent Activity */}
         <div className="card">
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>

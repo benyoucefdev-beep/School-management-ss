@@ -155,7 +155,7 @@ export default function SupplierDetailPage() {
       {activeTabName === 'Overview' && (
         <div className="form-grid form-grid-2">
           <div className="card">
-            <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 16 }}>Supplier Details</h3>
+            <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 16 }}>Teacher Details</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12, fontSize: 13 }}>
               {[['Contact', supplier.contact_name], ['Email', supplier.contact_email], ['Phone', supplier.contact_phone], ['Tax ID', supplier.tax_number], ['Terms', supplier.payment_terms]].map(([l, v]) => (
                 <div key={l} style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -168,7 +168,7 @@ export default function SupplierDetailPage() {
             <h3 style={{ fontSize: 14, fontWeight: 700, marginTop: 24, marginBottom: 16 }}>Financial Summary (DZD)</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12, fontSize: 13 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--text-muted)' }}>Total Owed</span>
+                <span style={{ color: 'var(--text-muted)' }}>Salary Owed</span>
                 <span style={{ fontWeight: 600 }}>{fmtDZD(supplier.summary?.total_owed, 'DZD')}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
