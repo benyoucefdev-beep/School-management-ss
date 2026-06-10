@@ -1,0 +1,18 @@
+-- ============================================================
+-- Axialogy — Fix: Role Constraint & Admin Login
+-- Safe to run on existing DB (all statements are idempotent)
+-- ============================================================
+
+-- Fix role constraint to match current 5-role system
+ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_check;
+ALTER TABLE users ADD CONSTRAINT users_role_check
+  CHECK (role IN ('admin','graphic_designer','software_developer','printer','ads_manager'));
+
+-- Migrate any old role names
+UPDATE users SET role = 'admin'            WHERE role = 'owner';
+UPDATE users SET role = 'ads_manager'      WHERE role = 'manager';
+UPDATE users SET role = 'graphic_designer' WHERE role = 'member';
+
+-- Ensure admin account has correct role
+UPDATE users SET role = 'admin' WHERE email = 'admin@axialogy.com';
+UPDATE users SET role = 'admin' WHERE username = 'admin';
