@@ -4,7 +4,8 @@
 import {
   LayoutDashboard, Users, BookOpen, DollarSign,
   TrendingUp, GraduationCap, Settings, BarChart2,
-  ClipboardList, CalendarDays, FileText, Star, Layers, Home
+  ClipboardList, CalendarDays, FileText, Star, Layers, Home,
+  UserCheck, Baby
 } from 'lucide-react';
 
 export const ROLE_LABELS = {
@@ -79,8 +80,10 @@ const NAV_CONFIG = {
     { divider: true, label: 'School' },
     { label: 'Students',          path: '/clients',           icon: GraduationCap, subpaths: ['/clients/'] },
     { label: 'Teachers',          path: '/suppliers',         icon: Users,         subpaths: ['/suppliers/'] },
-    { label: 'Classes',           path: '/tasks',             icon: BookOpen },
-    { label: 'Timetable',         path: '/ads',               icon: CalendarDays },
+    { label: 'Groups',            path: '/groups',            icon: Layers },
+    { label: 'Subjects',          path: '/subjects',          icon: BookOpen },
+    { label: 'Classes',           path: '/tasks',             icon: ClipboardList },
+    { label: 'Parents',           path: '/parents',           icon: Baby },
 
     { divider: true, label: 'Finance' },
     { label: 'Tuition Fees',      path: '/finance/invoices',  icon: DollarSign },
@@ -88,12 +91,9 @@ const NAV_CONFIG = {
     { label: 'Expenses',          path: '/finance/expenses',  icon: ClipboardList },
     { label: 'Financial Report',  path: '/finance/pl',        icon: TrendingUp },
 
-    { divider: true, label: 'Portals' },
-    { label: 'Student Portal',    path: '/portal-admin',      icon: Home },
-
     { divider: true, label: 'Management' },
-    { label: 'Team',              path: '/team',              icon: Settings },
-    { label: 'Settings',          path: '/settings',          icon: Layers },
+    { label: 'Team',              path: '/team',              icon: UserCheck },
+    { label: 'Settings',          path: '/settings',          icon: Settings },
   ],
 
   // Owner alias
@@ -104,8 +104,10 @@ const NAV_CONFIG = {
     { divider: true, label: 'School' },
     { label: 'Students',          path: '/clients',           icon: GraduationCap, subpaths: ['/clients/'] },
     { label: 'Teachers',          path: '/suppliers',         icon: Users,         subpaths: ['/suppliers/'] },
-    { label: 'Classes',           path: '/tasks',             icon: BookOpen },
-    { label: 'Timetable',         path: '/ads',               icon: CalendarDays },
+    { label: 'Groups',            path: '/groups',            icon: Layers },
+    { label: 'Subjects',          path: '/subjects',          icon: BookOpen },
+    { label: 'Classes',           path: '/tasks',             icon: ClipboardList },
+    { label: 'Parents',           path: '/parents',           icon: Baby },
 
     { divider: true, label: 'Finance' },
     { label: 'Tuition Fees',      path: '/finance/invoices',  icon: DollarSign },
@@ -113,12 +115,9 @@ const NAV_CONFIG = {
     { label: 'Expenses',          path: '/finance/expenses',  icon: ClipboardList },
     { label: 'Financial Report',  path: '/finance/pl',        icon: TrendingUp },
 
-    { divider: true, label: 'Portals' },
-    { label: 'Student Portal',    path: '/portal-admin',      icon: Home },
-
     { divider: true, label: 'Management' },
-    { label: 'Team',              path: '/team',              icon: Settings },
-    { label: 'Settings',          path: '/settings',          icon: Layers },
+    { label: 'Team',              path: '/team',              icon: UserCheck },
+    { label: 'Settings',          path: '/settings',          icon: Settings },
   ],
 
   manager: [
@@ -128,15 +127,10 @@ const NAV_CONFIG = {
     { divider: true, label: 'School' },
     { label: 'Students',          path: '/clients',           icon: GraduationCap, subpaths: ['/clients/'] },
     { label: 'Teachers',          path: '/suppliers',         icon: Users,         subpaths: ['/suppliers/'] },
-    { label: 'Classes',           path: '/tasks',             icon: BookOpen },
-    { label: 'Timetable',         path: '/ads',               icon: CalendarDays },
-
-    { divider: true, label: 'Finance' },
-    { label: 'Tuition Fees',      path: '/finance/invoices',  icon: DollarSign },
-    { label: 'Expenses',          path: '/finance/expenses',  icon: ClipboardList },
-
-    { divider: true, label: 'Portals' },
-    { label: 'Student Portal',    path: '/portal-admin',      icon: Home },
+    { label: 'Groups',            path: '/groups',            icon: Layers },
+    { label: 'Subjects',          path: '/subjects',          icon: BookOpen },
+    { label: 'Classes',           path: '/tasks',             icon: ClipboardList },
+    { label: 'Parents',           path: '/parents',           icon: Baby },
   ],
 
   member: [

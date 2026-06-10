@@ -34,6 +34,9 @@ const SettingsPage       = lazy(() => import('./pages/SettingsPage'));
 const ProfilePage        = lazy(() => import('./pages/ProfilePage'));
 const PortalPage         = lazy(() => import('./pages/PortalPage'));
 const SupplierPortalPage = lazy(() => import('./pages/SupplierPortalPage'));
+const GroupsPage         = lazy(() => import('./pages/GroupsPage'));
+const SubjectsPage       = lazy(() => import('./pages/SubjectsPage'));
+const ParentsPage        = lazy(() => import('./pages/ParentsPage'));
 
 const ALL_SPECIALIST_ROLES = ['graphic_designer', 'software_developer', 'printer', 'ads_manager'];
 const ALL_ROLES = ['admin', ...ALL_SPECIALIST_ROLES];
@@ -293,6 +296,11 @@ function AppRoutes() {
       <Route path="/suppliers/:id" element={<ProtectedRoute><RoleGuard allowedRoles={['admin']}><SupplierDetailPage /></RoleGuard></ProtectedRoute>} />
       <Route path="/team" element={<ProtectedRoute><RoleGuard allowedRoles={['admin']}><TeamPage /></RoleGuard></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><RoleGuard allowedRoles={['admin']}><SettingsPage /></RoleGuard></ProtectedRoute>} />
+
+      {/* ── School Management ──────────────────────────────── */}
+      <Route path="/groups"   element={<ProtectedRoute><RoleGuard allowedRoles={ALL_ROLES}><GroupsPage /></RoleGuard></ProtectedRoute>} />
+      <Route path="/subjects" element={<ProtectedRoute><RoleGuard allowedRoles={ALL_ROLES}><SubjectsPage /></RoleGuard></ProtectedRoute>} />
+      <Route path="/parents"  element={<ProtectedRoute><RoleGuard allowedRoles={['admin']}><ParentsPage /></RoleGuard></ProtectedRoute>} />
 
       {/* ── Admin + ads_manager ────────────────────────────── */}
       <Route path="/ads" element={<ProtectedRoute><RoleGuard allowedRoles={['admin', 'ads_manager']}><AdsPage /></RoleGuard></ProtectedRoute>} />
