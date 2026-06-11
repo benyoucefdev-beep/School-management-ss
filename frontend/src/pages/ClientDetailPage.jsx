@@ -70,26 +70,26 @@ export default function ClientDetailPage() {
   });
 
   const { data: tasks } = useQuery({
-    queryKey: ['tasks', id],
-    queryFn: () => api.get('/tasks', { params: { client_id: id } }).then(r => r.data),
+    queryKey: ['classes', id],
+    queryFn: () => api.get('/classes', { params: { student_id: id } }).then(r => r.data),
     enabled: tab === 1,
   });
 
   const { data: invoices, refetch: refetchInvoices } = useQuery({
     queryKey: ['invoices', id],
-    queryFn: () => api.get('/finance/invoices', { params: { client_id: id } }).then(r => r.data),
+    queryFn: () => api.get('/finance/invoices', { params: { student_id: id } }).then(r => r.data),
     enabled: tab === 0,
   });
 
   const { data: versements, refetch: refetchVersements } = useQuery({
     queryKey: ['versements', id],
-    queryFn: () => api.get('/finance/versements', { params: { client_id: id } }).then(r => r.data),
+    queryFn: () => api.get('/finance/versements', { params: { student_id: id } }).then(r => r.data),
     enabled: tab === 0,
   });
 
   const { data: quotes } = useQuery({
     queryKey: ['quotes', id],
-    queryFn: () => api.get('/finance/quotes', { params: { client_id: id } }).then(r => r.data),
+    queryFn: () => api.get('/finance/quotes', { params: { student_id: id } }).then(r => r.data),
     enabled: tab === 0,
   });
 
@@ -197,7 +197,7 @@ export default function ClientDetailPage() {
   });
 
   const addTask = useMutation({
-    mutationFn: (body) => api.post('/tasks', body),
+    mutationFn: (body) => api.post('/classes', body),
     onSuccess: () => {
       qc.invalidateQueries(['tasks', id]);
       setShowAddTask(false);
@@ -269,7 +269,7 @@ export default function ClientDetailPage() {
     <div>
       {/* ── Header ── */}
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16, marginBottom: 28 }}>
-        <button className="btn btn-ghost btn-icon" onClick={() => navigate('/clients')}>
+        <button className="btn btn-ghost btn-icon" onClick={() => navigate('/students')}>
           <ArrowLeft size={18} />
         </button>
         <div style={{ flex: 1 }}>
@@ -350,7 +350,7 @@ export default function ClientDetailPage() {
                 if (window.confirm(`Delete "${client.student_name}"?`)) {
                   api.delete(`/clients/${client.id}`).then(() => {
                     toast.success('Client deleted');
-                    navigate('/clients');
+                    navigate('/students');
                   }).catch(() => toast.error('Failed to delete'));
                 }
               }}
@@ -971,7 +971,7 @@ export default function ClientDetailPage() {
           <button
             className="btn btn-primary"
             disabled={!taskForm.title || addTask.isPending}
-            onClick={() => addTask.mutate({ ...taskForm, client_id: id, assignee_ids: taskForm.assignee_ids, service_type: taskForm.service_type || null, deadline: taskForm.deadline || null })}
+            onClick={() => addTask.mutate({ ...taskForm, student_id: id, assignee_ids: taskForm.assignee_ids, service_type: taskForm.service_type || null, deadline: taskForm.deadline || null })}
           >
             <Plus size={13} /> Create Task
           </button>
@@ -1002,7 +1002,7 @@ export default function ClientDetailPage() {
           <button
             className="btn btn-success"
             disabled={!versementForm.amount_dzd || logVersement.isPending}
-            onClick={() => logVersement.mutate({ ...versementForm, client_id: id })}
+            onClick={() => logVersement.mutate({ ...versementForm, student_id: id })}
           >
             <DollarSign size={13} /> Log Versement
           </button>
@@ -1049,7 +1049,7 @@ export default function ClientDetailPage() {
             className="btn btn-primary"
             style={{ background: 'var(--danger)' }}
             disabled={!paymentForm.invoice_id || !paymentForm.amount || logPayment.isPending}
-            onClick={() => logPayment.mutate({ ...paymentForm, client_id: id })}
+            onClick={() => logPayment.mutate({ ...paymentForm, student_id: id })}
           >
             <Receipt size={13} /> Settle Invoice
           </button>
@@ -1142,7 +1142,7 @@ export default function ClientDetailPage() {
           <button
             className="btn btn-primary"
             disabled={!spendForm.amount || !spendForm.platform || !spendForm.spend_date || logAdSpend.isPending}
-            onClick={() => logAdSpend.mutate({ ...spendForm, client_id: id })}
+            onClick={() => logAdSpend.mutate({ ...spendForm, student_id: id })}
           >
             Log Spend
           </button>

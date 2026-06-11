@@ -36,47 +36,33 @@ app.use(express.urlencoded({ extended: true }));
 // Serve uploaded files statically
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
-// ── Public Routes (no auth) — MUST be before authenticated routes ──
-app.use('/api/portal', require('./routes/portal'));
-app.use('/api/supplier-portal', require('./routes/supplier-portal'));
+// ── Public Routes (no auth) ────────────────────────────────────
+app.use('/api/student-portal',  require('./routes/portal'));        // student portal (uses old portal.js)
+app.use('/api/teacher-portal',  require('./routes/supplier-portal')); // teacher portal
 
-// ── Routes — Phase 1 & 2 ───────────────────────────────────────
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/users', require('./routes/users'));
-app.use('/api/clients', require('./routes/clients'));
-app.use('/api/tasks', require('./routes/tasks'));
-app.use('/api/finance', require('./routes/finance'));
-app.use('/api/ads', require('./routes/ads'));
+// ── Core Routes ────────────────────────────────────────────────
+app.use('/api/auth',       require('./routes/auth'));
+app.use('/api/users',      require('./routes/users'));
+app.use('/api/dashboard',  require('./routes/dashboard'));
 
-app.use('/api/dashboard', require('./routes/dashboard'));
+// ── School Routes ──────────────────────────────────────────────
+app.use('/api/students',   require('./routes/students'));
+app.use('/api/teachers',   require('./routes/teachers'));
+app.use('/api/classes',    require('./routes/classes'));
+app.use('/api/groups',     require('./routes/groups'));
+app.use('/api/subjects',   require('./routes/subjects'));
+app.use('/api/parents',    require('./routes/parents'));
 
-// ── Routes — Phase 3 & 4 ───────────────────────────────────────
-app.use('/api/team', require('./routes/team'));
+// ── Finance Routes ─────────────────────────────────────────────
+app.use('/api/finance',    require('./routes/finance'));
+
+// ── Management Routes ──────────────────────────────────────────
+app.use('/api/team',          require('./routes/team'));
 app.use('/api/notifications', require('./routes/notifications'));
-app.use('/api/reports', require('./routes/reports'));
-app.use('/api/digest', require('./routes/digest'));
-app.use('/api/leads', require('./routes/leads'));
 
-// ── Routes — Suppliers ──────────────────────────────────────────
-try {
-  app.use('/api/exchange-rates', require('./routes/exchangeRates'));
-  app.use('/api/suppliers', require('./routes/suppliers'));
-  app.use('/api/suppliers/:id/transactions', require('./routes/supplierTransactions'));
-  app.use('/api/suppliers/:id/orders', require('./routes/supplierOrders'));
-  app.use('/api/suppliers/:id/subscriptions', require('./routes/supplierSubscriptions'));
-  app.use('/api/suppliers/:id/documents', require('./routes/supplierDocuments'));
-} catch (e) {
-  console.error('[startup] Supplier routes failed to load:', e.message);
-}
-
-// ── Routes — School Management ──────────────────────────────────
-try {
-  app.use('/api/groups',   require('./routes/groups'));
-  app.use('/api/subjects', require('./routes/subjects'));
-  app.use('/api/parents',  require('./routes/parents'));
-} catch (e) {
-  console.error('[startup] School routes failed to load:', e.message);
-}
+// ── Legacy backward-compat aliases (portal still uses /portal/:token) ──
+try { app.use('/api/portal', require('./routes/portal')); } catch(e) {}
+try { app.use('/api/supplier-portal', require('./routes/supplier-portal')); } catch(e) {}
 
 // Health check
 app.get('/api/health', (req, res) => {

@@ -383,9 +383,9 @@ export default function TasksPage() {
   }, []);
 
   const { data: tasks = [], isLoading } = useQuery({
-    queryKey: ['tasks', { filterService, filterStatus, filterClient, filterAssignee }],
+    queryKey: ['classes', { filterService, filterStatus, filterClient, filterAssignee }],
     queryFn: () =>
-      api.get('/tasks', {
+      api.get('/classes', {
         params: {
           service_type: filterService || undefined,
           status: filterStatus || undefined,
@@ -399,8 +399,8 @@ export default function TasksPage() {
 
   // Use distinct query keys so these don't conflict with Sidebar's /users poll
   const { data: clientsList } = useQuery({
-    queryKey: ['clients-list'],
-    queryFn: () => api.get('/clients', { params: { simple: 'true' } }).then(r => r.data.data),
+    queryKey: ['students-list'],
+    queryFn: () => api.get('/students', { params: { simple: 'true' } }).then(r => r.data.data),
     staleTime: 120_000,  // clients rarely change
   });
   const { data: usersList } = useQuery({
@@ -410,7 +410,7 @@ export default function TasksPage() {
   });
 
   const createMutation = useMutation({
-    mutationFn: body => api.post('/tasks', body),
+    mutationFn: body => api.post('/classes', body),
     onSuccess: () => { qc.invalidateQueries(['tasks']); setShowModal(false); toast.success('Class created'); },
     onError: e => toast.error(e.response?.data?.error || 'Failed to create class'),
   });

@@ -42,8 +42,8 @@ export default function SuppliersPage() {
   }, []);
 
   const { data: suppliers, isLoading } = useQuery({
-    queryKey: ['suppliers', filterType],
-    queryFn: () => api.get('/suppliers', { params: filterType !== 'all' ? { type: filterType } : {} }).then(r => r.data)
+    queryKey: ['teachers', filterType],
+    queryFn: () => api.get('/teachers', { params: filterType !== 'all' ? { type: filterType } : {} }).then(r => r.data)
   });
 
   const handleEdit = (supplier) => {
@@ -53,7 +53,7 @@ export default function SuppliersPage() {
   };
 
   const addSupplier = useMutation({
-    mutationFn: (data) => api.post('/suppliers', data).then(r => r.data),
+    mutationFn: (data) => api.post('/teachers', data).then(r => r.data),
     onSuccess: () => {
       qc.invalidateQueries(['suppliers']);
       setShowAdd(false);

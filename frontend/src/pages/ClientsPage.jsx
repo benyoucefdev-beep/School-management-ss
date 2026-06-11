@@ -121,8 +121,8 @@ export default function ClientsPage() {
   }, []);
 
   const { data, isLoading } = useQuery({
-    queryKey: ['clients', search],
-    queryFn: () => api.get('/clients', { params: { search, limit: 50 } }).then(r => r.data),
+    queryKey: ['students', search],
+    queryFn: () => api.get('/students', { params: { search, limit: 50 } }).then(r => r.data),
   });
 
   const { data: users } = useQuery({
@@ -131,7 +131,7 @@ export default function ClientsPage() {
   });
 
   const createMutation = useMutation({
-    mutationFn: (body) => api.post('/clients', body),
+    mutationFn: (body) => api.post('/students', body),
     onSuccess: () => {
       qc.invalidateQueries(['clients']);
       setShowCreate(false);

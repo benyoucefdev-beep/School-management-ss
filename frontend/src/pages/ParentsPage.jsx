@@ -195,8 +195,8 @@ function ParentForm({ initial, onSave, onClose }) {
 
 function AbsenceForm({ onSave, onClose }) {
   const { data: students = [] } = useQuery({
-    queryKey: ['clients-simple'],
-    queryFn: () => api.get('/clients', { params: { simple: 'true' } }).then(r => r.data.data),
+    queryKey: ['students-simple'],
+    queryFn: () => api.get('/students', { params: { simple: 'true' } }).then(r => r.data.data),
   });
   const { data: subjects = [] } = useQuery({
     queryKey: ['subjects'],

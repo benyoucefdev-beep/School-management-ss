@@ -283,16 +283,16 @@ function AppRoutes() {
       {/* ── All authenticated roles ────────────────────────── */}
       <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
       <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
-      <Route path="/clients" element={<ProtectedRoute><RoleGuard allowedRoles={['admin']}><ClientsPage /></RoleGuard></ProtectedRoute>} />
+      <Route path="/students" element={<ProtectedRoute><RoleGuard allowedRoles={['admin']}><ClientsPage /></RoleGuard></ProtectedRoute>} />
       <Route path="/clients/:id" element={<ProtectedRoute><RoleGuard allowedRoles={['admin']}><ClientDetailPage /></RoleGuard></ProtectedRoute>} />
-      <Route path="/tasks" element={<ProtectedRoute><RoleGuard allowedRoles={ALL_ROLES}><TasksPage /></RoleGuard></ProtectedRoute>} />
+      <Route path="/classes" element={<ProtectedRoute><RoleGuard allowedRoles={ALL_ROLES}><TasksPage /></RoleGuard></ProtectedRoute>} />
 
       {/* ── Admin-only ─────────────────────────────────────── */}
       <Route path="/finance/quotes" element={<ProtectedRoute><RoleGuard allowedRoles={['admin']}><QuotesPage /></RoleGuard></ProtectedRoute>} />
       <Route path="/finance/invoices" element={<ProtectedRoute><RoleGuard allowedRoles={['admin']}><InvoicesPage /></RoleGuard></ProtectedRoute>} />
       <Route path="/finance/expenses" element={<ProtectedRoute><RoleGuard allowedRoles={['admin']}><ExpensesPage /></RoleGuard></ProtectedRoute>} />
       <Route path="/finance/pl" element={<ProtectedRoute><RoleGuard allowedRoles={['admin']}><PLPage /></RoleGuard></ProtectedRoute>} />
-      <Route path="/suppliers" element={<ProtectedRoute><RoleGuard allowedRoles={['admin']}><SuppliersPage /></RoleGuard></ProtectedRoute>} />
+      <Route path="/teachers" element={<ProtectedRoute><RoleGuard allowedRoles={['admin']}><SuppliersPage /></RoleGuard></ProtectedRoute>} />
       <Route path="/suppliers/:id" element={<ProtectedRoute><RoleGuard allowedRoles={['admin']}><SupplierDetailPage /></RoleGuard></ProtectedRoute>} />
       <Route path="/team" element={<ProtectedRoute><RoleGuard allowedRoles={['admin']}><TeamPage /></RoleGuard></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><RoleGuard allowedRoles={['admin']}><SettingsPage /></RoleGuard></ProtectedRoute>} />

@@ -128,7 +128,7 @@ export default function SupplierDetailPage() {
   return (
     <div className="page-container">
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
-        <button className="btn btn-secondary" onClick={() => navigate('/suppliers')} style={{ padding: 8 }}>
+        <button className="btn btn-secondary" onClick={() => navigate('/teachers')} style={{ padding: 8 }}>
           <ArrowLeft size={16} />
         </button>
         <div style={{ flex: 1 }}>

@@ -103,7 +103,7 @@ export default function ExpensesPage() {
 
   const { data: fixed = [] } = useQuery({ queryKey: ['fixed-expenses'], queryFn: () => api.get('/finance/expenses/fixed').then(r => r.data) });
   const { data: variable = [] } = useQuery({ queryKey: ['variable-expenses'], queryFn: () => api.get('/finance/expenses/variable').then(r => r.data) });
-  const { data: clients } = useQuery({ queryKey: ['clients-list'], queryFn: () => api.get('/clients', { params: { limit: 100 } }).then(r => r.data.data) });
+  const { data: clients } = useQuery({ queryKey: ['students-list'], queryFn: () => api.get('/students', { params: { limit: 100 } }).then(r => r.data.data) });
 
   const createFixed = useMutation({ mutationFn: b => api.post('/finance/expenses/fixed', b), onSuccess: () => { qc.invalidateQueries(['fixed-expenses']); setShowFixed(false); toast.success('Fixed expense added'); }, onError: e => toast.error(e.response?.data?.error || 'Failed to create expense') });
   const updateFixed = useMutation({ mutationFn: ({ id, ...b }) => api.put(`/finance/expenses/fixed/${id}`, b), onSuccess: () => { qc.invalidateQueries(['fixed-expenses']); setEditFixed(null); toast.success('Updated'); }, onError: e => toast.error(e.response?.data?.error || 'Failed to update expense') });

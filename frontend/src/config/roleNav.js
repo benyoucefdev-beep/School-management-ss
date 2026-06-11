@@ -78,11 +78,11 @@ const NAV_CONFIG = {
     { label: 'Dashboard',         path: '/dashboard',         icon: LayoutDashboard },
 
     { divider: true, label: 'School' },
-    { label: 'Students',          path: '/clients',           icon: GraduationCap, subpaths: ['/clients/'] },
-    { label: 'Teachers',          path: '/suppliers',         icon: Users,         subpaths: ['/suppliers/'] },
+    { label: 'Students',          path: '/students',           icon: GraduationCap, subpaths: ['/clients/'] },
+    { label: 'Teachers',          path: '/teachers',         icon: Users,         subpaths: ['/suppliers/'] },
     { label: 'Groups',            path: '/groups',            icon: Layers },
     { label: 'Subjects',          path: '/subjects',          icon: BookOpen },
-    { label: 'Classes',           path: '/tasks',             icon: ClipboardList },
+    { label: 'Classes',           path: '/classes',             icon: ClipboardList },
     { label: 'Parents',           path: '/parents',           icon: Baby },
 
     { divider: true, label: 'Finance' },
@@ -102,11 +102,11 @@ const NAV_CONFIG = {
     { label: 'Dashboard',         path: '/dashboard',         icon: LayoutDashboard },
 
     { divider: true, label: 'School' },
-    { label: 'Students',          path: '/clients',           icon: GraduationCap, subpaths: ['/clients/'] },
-    { label: 'Teachers',          path: '/suppliers',         icon: Users,         subpaths: ['/suppliers/'] },
+    { label: 'Students',          path: '/students',           icon: GraduationCap, subpaths: ['/clients/'] },
+    { label: 'Teachers',          path: '/teachers',         icon: Users,         subpaths: ['/suppliers/'] },
     { label: 'Groups',            path: '/groups',            icon: Layers },
     { label: 'Subjects',          path: '/subjects',          icon: BookOpen },
-    { label: 'Classes',           path: '/tasks',             icon: ClipboardList },
+    { label: 'Classes',           path: '/classes',             icon: ClipboardList },
     { label: 'Parents',           path: '/parents',           icon: Baby },
 
     { divider: true, label: 'Finance' },
@@ -125,38 +125,38 @@ const NAV_CONFIG = {
     { label: 'Dashboard',         path: '/dashboard',         icon: LayoutDashboard },
 
     { divider: true, label: 'School' },
-    { label: 'Students',          path: '/clients',           icon: GraduationCap, subpaths: ['/clients/'] },
-    { label: 'Teachers',          path: '/suppliers',         icon: Users,         subpaths: ['/suppliers/'] },
+    { label: 'Students',          path: '/students',           icon: GraduationCap, subpaths: ['/clients/'] },
+    { label: 'Teachers',          path: '/teachers',         icon: Users,         subpaths: ['/suppliers/'] },
     { label: 'Groups',            path: '/groups',            icon: Layers },
     { label: 'Subjects',          path: '/subjects',          icon: BookOpen },
-    { label: 'Classes',           path: '/tasks',             icon: ClipboardList },
+    { label: 'Classes',           path: '/classes',             icon: ClipboardList },
     { label: 'Parents',           path: '/parents',           icon: Baby },
   ],
 
   member: [
     { divider: true, label: 'Workspace' },
-    { label: 'Classes',           path: '/tasks',             icon: BookOpen },
+    { label: 'Classes',           path: '/classes',             icon: BookOpen },
   ],
 
   // Legacy specialist roles
   graphic_designer: [
     { divider: true, label: 'Workspace' },
-    { label: 'Classes',           path: '/tasks',             icon: BookOpen },
+    { label: 'Classes',           path: '/classes',             icon: BookOpen },
   ],
 
   software_developer: [
     { divider: true, label: 'Workspace' },
-    { label: 'Classes',           path: '/tasks',             icon: BookOpen },
+    { label: 'Classes',           path: '/classes',             icon: BookOpen },
   ],
 
   printer: [
     { divider: true, label: 'Workspace' },
-    { label: 'Classes',           path: '/tasks',             icon: BookOpen },
+    { label: 'Classes',           path: '/classes',             icon: BookOpen },
   ],
 
   ads_manager: [
     { divider: true, label: 'Workspace' },
-    { label: 'Classes',           path: '/tasks',             icon: BookOpen },
+    { label: 'Classes',           path: '/classes',             icon: BookOpen },
     { divider: true, label: 'School' },
     { label: 'Timetable',         path: '/ads',               icon: CalendarDays },
   ],

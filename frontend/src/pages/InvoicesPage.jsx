@@ -255,8 +255,8 @@ export default function InvoicesPage() {
   });
 
   const { data: clients } = useQuery({
-    queryKey: ['clients-list'],
-    queryFn: () => api.get('/clients', { params: { limit: 100 } }).then(r => r.data.data),
+    queryKey: ['students-list'],
+    queryFn: () => api.get('/students', { params: { limit: 100 } }).then(r => r.data.data),
   });
 
   const { data: detail } = useQuery({
