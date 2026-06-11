@@ -36,10 +36,9 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <title>EduManage — School Management Platform</title>
     <script>
-      (function() {
-        const saved = localStorage.getItem('edumanage_theme') || 'light';
-        document.documentElement.setAttribute('data-theme', saved);
-      })();
+      // Light mode only — clear any previously saved dark preference
+      localStorage.removeItem('edumanage_theme');
+      document.documentElement.setAttribute('data-theme', 'light');
     </script>
   </head>
   <body>
