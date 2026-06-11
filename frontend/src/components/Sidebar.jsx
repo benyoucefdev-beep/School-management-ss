@@ -77,7 +77,6 @@ function TeamTaskStatus() {
                 </div>
                 <span 
                   className={`member-status-dot status-dot-pulse ${statusClass}`}
-                  style={{ background: statusColor }}
                 />
               </div>
 
