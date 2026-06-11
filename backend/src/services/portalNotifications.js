@@ -1,19 +1,15 @@
+// School-edition portalNotifications — uses student_notifications table
 const pool = require('../db');
 
-/**
- * Creates a portal notification for a client.
- * type: 'invoice_received' | 'quote_received' | 'task_updated'
- */
-async function createPortalNotification({ clientId, type, title, message }) {
+async function createPortalNotification({ studentId, type, title, message }) {
+  if (!studentId) return;
   try {
     await pool.query(
-      `INSERT INTO portal_notifications (client_id, type, title, message)
-       VALUES ($1, $2, $3, $4)`,
-      [clientId, type, title, message]
+      `INSERT INTO student_notifications (student_id, type, title, body) VALUES ($1, $2, $3, $4)`,
+      [studentId, type, title, message]
     );
   } catch (err) {
-    // Non-fatal
-    console.error('[PortalNotification] Failed to create:', err.message);
+    console.error('[PortalNotification]', err.message);
   }
 }
 

@@ -1,7 +1,7 @@
 const router  = require('express').Router();
 const pool    = require('../db');
 const jwt     = require('jsonwebtoken');
-const bcrypt  = require('bcrypt');
+const bcrypt  = require('bcryptjs');
 const { authenticate } = require('../middleware/auth');
 
 const PARENT_SECRET = process.env.PARENT_JWT_SECRET || process.env.JWT_SECRET;
