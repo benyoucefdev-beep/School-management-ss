@@ -1,6 +1,11 @@
 -- ══════════════════════════════════════════════════════════════════════════════
--- MIGRATION 044: FULL SCHOOL SCHEMA RESET
--- Drops ALL old agency tables and recreates with proper school names
+-- MIGRATION 001: EDUMANAGE SCHOOL SCHEMA
+-- Canonical schema — matches live Supabase tables exactly.
+-- Tables: students, teachers, classes, groups, subjects, parents,
+--         absences, class_sessions, subject_payments, invoices, payments,
+--         expenses, teacher_payments, student_notes, student_documents,
+--         student_uploads, teacher_documents, notifications, activity_log,
+--         push_subscriptions, role_permissions, weekly_digest_log, users
 -- ══════════════════════════════════════════════════════════════════════════════
 
 -- ── STEP 1: DROP EVERYTHING (CASCADE handles foreign keys) ────────────────────
