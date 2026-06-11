@@ -3,8 +3,8 @@
 
 import {
   LayoutDashboard, Users, BookOpen, DollarSign,
-  TrendingUp, GraduationCap, Settings, BarChart2,
-  ClipboardList, CalendarDays, FileText, Star, Layers, Home,
+  TrendingUp, GraduationCap, Settings,
+  ClipboardList, Layers,
   UserCheck, Baby
 } from 'lucide-react';
 
@@ -87,7 +87,6 @@ const NAV_CONFIG = {
 
     { divider: true, label: 'Finance' },
     { label: 'Tuition Fees',      path: '/finance/invoices',  icon: DollarSign },
-    { label: 'Quotations',        path: '/finance/quotes',    icon: Star },
     { label: 'Expenses',          path: '/finance/expenses',  icon: ClipboardList },
     { label: 'Financial Report',  path: '/finance/pl',        icon: TrendingUp },
 
@@ -96,22 +95,21 @@ const NAV_CONFIG = {
     { label: 'Settings',          path: '/settings',          icon: Settings },
   ],
 
-  // Owner alias
+  // Owner alias — same as admin
   owner: [
     { divider: true, label: 'Overview' },
     { label: 'Dashboard',         path: '/dashboard',         icon: LayoutDashboard },
 
     { divider: true, label: 'School' },
-    { label: 'Students',          path: '/students',           icon: GraduationCap, subpaths: ['/clients/'] },
-    { label: 'Teachers',          path: '/teachers',         icon: Users,         subpaths: ['/suppliers/'] },
+    { label: 'Students',          path: '/students',          icon: GraduationCap, subpaths: ['/students/'] },
+    { label: 'Teachers',          path: '/teachers',          icon: Users,          subpaths: ['/teachers/'] },
     { label: 'Groups',            path: '/groups',            icon: Layers },
     { label: 'Subjects',          path: '/subjects',          icon: BookOpen },
-    { label: 'Classes',           path: '/classes',             icon: ClipboardList },
+    { label: 'Classes',           path: '/classes',           icon: ClipboardList },
     { label: 'Parents',           path: '/parents',           icon: Baby },
 
     { divider: true, label: 'Finance' },
     { label: 'Tuition Fees',      path: '/finance/invoices',  icon: DollarSign },
-    { label: 'Quotations',        path: '/finance/quotes',    icon: Star },
     { label: 'Expenses',          path: '/finance/expenses',  icon: ClipboardList },
     { label: 'Financial Report',  path: '/finance/pl',        icon: TrendingUp },
 
@@ -125,40 +123,18 @@ const NAV_CONFIG = {
     { label: 'Dashboard',         path: '/dashboard',         icon: LayoutDashboard },
 
     { divider: true, label: 'School' },
-    { label: 'Students',          path: '/students',           icon: GraduationCap, subpaths: ['/clients/'] },
-    { label: 'Teachers',          path: '/teachers',         icon: Users,         subpaths: ['/suppliers/'] },
+    { label: 'Students',          path: '/students',          icon: GraduationCap, subpaths: ['/students/'] },
+    { label: 'Teachers',          path: '/teachers',          icon: Users,          subpaths: ['/teachers/'] },
     { label: 'Groups',            path: '/groups',            icon: Layers },
     { label: 'Subjects',          path: '/subjects',          icon: BookOpen },
-    { label: 'Classes',           path: '/classes',             icon: ClipboardList },
+    { label: 'Classes',           path: '/classes',           icon: ClipboardList },
     { label: 'Parents',           path: '/parents',           icon: Baby },
   ],
 
   member: [
     { divider: true, label: 'Workspace' },
-    { label: 'Classes',           path: '/classes',             icon: BookOpen },
-  ],
-
-  // Legacy specialist roles
-  graphic_designer: [
-    { divider: true, label: 'Workspace' },
-    { label: 'Classes',           path: '/classes',             icon: BookOpen },
-  ],
-
-  software_developer: [
-    { divider: true, label: 'Workspace' },
-    { label: 'Classes',           path: '/classes',             icon: BookOpen },
-  ],
-
-  printer: [
-    { divider: true, label: 'Workspace' },
-    { label: 'Classes',           path: '/classes',             icon: BookOpen },
-  ],
-
-  ads_manager: [
-    { divider: true, label: 'Workspace' },
-    { label: 'Classes',           path: '/classes',             icon: BookOpen },
-    { divider: true, label: 'School' },
-    { label: 'Timetable',         path: '/ads',               icon: CalendarDays },
+    { label: 'Dashboard',         path: '/dashboard',         icon: LayoutDashboard },
+    { label: 'Classes',           path: '/classes',           icon: BookOpen },
   ],
 };
 
