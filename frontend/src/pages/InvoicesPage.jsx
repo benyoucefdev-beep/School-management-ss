@@ -4,7 +4,7 @@ import api from '../lib/api';
 import { StatusBadge } from '../components/Badges';
 import Modal from '../components/Modal';
 import toast from 'react-hot-toast';
-import { Plus, Trash2, Printer, DollarSign, Send, Edit2 } from 'lucide-react';
+import { Plus, Trash2, Printer, DollarSign, Send, Edit2, Tag, Save, X, BookOpen } from 'lucide-react';
 import { format } from 'date-fns';
 
 function printInvoice(detail) {
@@ -230,6 +230,7 @@ function LineItemsEditor({ items, onChange, disabled, services = [] }) {
 
 export default function InvoicesPage() {
   const qc = useQueryClient();
+  const [activeTab, setActiveTab] = useState('fees');
   const [showCreate, setShowCreate] = useState(false);
   const [viewInvoice, setViewInvoice] = useState(null);
   const [editInvoice, setEditInvoice] = useState(null);
@@ -237,6 +238,11 @@ export default function InvoicesPage() {
   const [showLogPayment, setShowLogPayment] = useState(null);
   const [form, setForm] = useState({ client_id: '', due_date: '', notes: '', line_items: [{ description: '', quantity: 1, unit_price: 0 }], discount_pct: 0 });
   const [payForm, setPayForm] = useState({ amount: '', notes: '', payment_date: new Date().toISOString().split('T')[0] });
+
+  // Course price management state
+  const [showAddCourse, setShowAddCourse] = useState(false);
+  const [editCourse, setEditCourse] = useState(null);
+  const [courseForm, setCourseForm] = useState({ service_name: '', price_dzd: '', description: '' });
 
   const [isMobile, setIsMobile] = useState(false);
   const [expandedInvoices, setExpandedInvoices] = useState({});
@@ -330,6 +336,25 @@ export default function InvoicesPage() {
     onError: e => toast.error(e.response?.data?.error || 'Failed'),
   });
 
+  // ── Course Price Mutations ───────────────────────────────────────────
+  const createCourseMutation = useMutation({
+    mutationFn: (body) => api.post('/finance/service-prices', body),
+    onSuccess: () => { qc.invalidateQueries(['service-prices']); setShowAddCourse(false); setCourseForm({ service_name: '', price_dzd: '', description: '' }); toast.success('Course price added!'); },
+    onError: e => toast.error(e.response?.data?.error || 'Failed'),
+  });
+
+  const updateCourseMutation = useMutation({
+    mutationFn: ({ id, ...body }) => api.put(`/finance/service-prices/${id}`, body),
+    onSuccess: () => { qc.invalidateQueries(['service-prices']); setEditCourse(null); toast.success('Course price updated!'); },
+    onError: e => toast.error(e.response?.data?.error || 'Failed'),
+  });
+
+  const deleteCourseMutation = useMutation({
+    mutationFn: (id) => api.delete(`/finance/service-prices/${id}`),
+    onSuccess: () => { qc.invalidateQueries(['service-prices']); toast.success('Course price deleted'); },
+    onError: e => toast.error(e.response?.data?.error || 'Failed'),
+  });
+
   const totalRevenue = invoices.reduce((s, i) => s + parseFloat(i.amount_paid || 0), 0);
   const totalOutstanding = invoices.filter(i => i.status !== 'paid').reduce((s, i) => s + parseFloat(i.grand_total || 0) - parseFloat(i.amount_paid || 0), 0);
 
@@ -342,15 +367,35 @@ export default function InvoicesPage() {
             {totalRevenue.toLocaleString()} DZD received · {totalOutstanding.toLocaleString()} DZD outstanding
           </p>
         </div>
-        <button id="create-invoice-btn" className="btn btn-primary" onClick={() => setShowCreate(true)}>
-          <Plus size={16} /> New Fee
+        {activeTab === 'fees' && (
+          <button id="create-invoice-btn" className="btn btn-primary" onClick={() => setShowCreate(true)}>
+            <Plus size={16} /> New Fee
+          </button>
+        )}
+        {activeTab === 'courses' && (
+          <button className="btn btn-primary" onClick={() => { setCourseForm({ service_name: '', price_dzd: '', description: '' }); setShowAddCourse(true); }}>
+            <Plus size={16} /> Add Course Price
+          </button>
+        )}
+      </div>
+
+      {/* Tab Bar */}
+      <div className="tabs" style={{ marginBottom: 24 }}>
+        <button className={`tab ${activeTab === 'fees' ? 'tab-active' : ''}`} onClick={() => setActiveTab('fees')}>
+          <DollarSign size={14} style={{ display: 'inline', marginRight: 6 }} />Fee Records
+        </button>
+        <button className={`tab ${activeTab === 'courses' ? 'tab-active' : ''}`} onClick={() => setActiveTab('courses')}>
+          <BookOpen size={14} style={{ display: 'inline', marginRight: 6 }} />Course Prices
         </button>
       </div>
 
-      {isLoading ? (
-        <div className="loading-center"><div className="loading-spinner" /></div>
-      ) : (
-        <div className="table-wrapper" style={isMobile ? { background: 'none', border: 'none', boxShadow: 'none', padding: 0 } : {}}>
+      {/* ── Fee Records Tab ── */}
+      {activeTab === 'fees' && (
+      <>
+        {isLoading ? (
+          <div className="loading-center"><div className="loading-spinner" /></div>
+        ) : (
+          <div className="table-wrapper" style={isMobile ? { background: 'none', border: 'none', boxShadow: 'none', padding: 0 } : {}}>
           {isMobile ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               {invoices.map(inv => {
@@ -636,9 +681,134 @@ export default function InvoicesPage() {
             </table>
           )}
         </div>
+        )}
+      </>
       )}
 
-      {/* Create Modal */}
+      {/* ── Course Prices Tab ── */}
+      {activeTab === 'courses' && (
+        <div>
+          {/* Info banner */}
+          <div style={{ marginBottom: 20, padding: '12px 16px', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 'var(--radius-md)', fontSize: 13, color: '#1e40af', display: 'flex', alignItems: 'center', gap: 10 }}>
+            <BookOpen size={16} />
+            <span>These prices are the <strong>reference rates</strong> for each course. They auto-suggest when creating a new fee invoice and will be used to calculate teacher salary payments.</span>
+          </div>
+
+          {/* Course prices table */}
+          {services.length === 0 ? (
+            <div className="empty-state">
+              <Tag size={40} style={{ color: 'var(--text-muted)', marginBottom: 12 }} />
+              <h3>No course prices yet</h3>
+              <p>Add your first course to start building the price reference list</p>
+              <button className="btn btn-primary" onClick={() => setShowAddCourse(true)}>
+                <Plus size={16} /> Add Course Price
+              </button>
+            </div>
+          ) : (
+            <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Course Name</th>
+                    <th>Description</th>
+                    <th>Price (DZD)</th>
+                    <th style={{ width: 100 }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {services.map(course => (
+                    editCourse?.id === course.id ? (
+                      // Inline edit row
+                      <tr key={course.id} style={{ background: 'rgba(37,99,235,0.04)' }}>
+                        <td style={{ padding: '8px 14px' }}>
+                          <input className="form-input" style={{ margin: 0 }} value={courseForm.service_name} onChange={e => setCourseForm(f => ({ ...f, service_name: e.target.value }))} placeholder="Course name" autoFocus />
+                        </td>
+                        <td style={{ padding: '8px 14px' }}>
+                          <input className="form-input" style={{ margin: 0 }} value={courseForm.description} onChange={e => setCourseForm(f => ({ ...f, description: e.target.value }))} placeholder="e.g. 3 sessions/week" />
+                        </td>
+                        <td style={{ padding: '8px 14px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <input className="form-input" type="number" style={{ margin: 0, maxWidth: 120, textAlign: 'right' }} value={courseForm.price_dzd} onChange={e => setCourseForm(f => ({ ...f, price_dzd: e.target.value }))} min="0" step="100" />
+                            <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>DZD</span>
+                          </div>
+                        </td>
+                        <td style={{ padding: '8px 14px' }}>
+                          <div style={{ display: 'flex', gap: 6 }}>
+                            <button className="btn btn-primary btn-sm" disabled={!courseForm.service_name || updateCourseMutation.isPending} onClick={() => updateCourseMutation.mutate({ id: editCourse.id, ...courseForm })}>
+                              <Save size={12} /> Save
+                            </button>
+                            <button className="btn btn-ghost btn-sm" onClick={() => setEditCourse(null)}><X size={12} /></button>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : (
+                      // Display row
+                      <tr key={course.id}>
+                        <td style={{ fontWeight: 600 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <div style={{ width: 28, height: 28, borderRadius: 8, background: 'var(--primary-light)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <BookOpen size={13} color="var(--primary)" />
+                            </div>
+                            {course.service_name}
+                          </div>
+                        </td>
+                        <td style={{ color: 'var(--text-muted)', fontSize: 13 }}>{course.description || '—'}</td>
+                        <td style={{ fontWeight: 700, color: 'var(--primary)', fontSize: 15 }}>
+                          {parseFloat(course.price_dzd || 0) > 0
+                            ? `${parseFloat(course.price_dzd).toLocaleString()} DZD`
+                            : <span style={{ fontStyle: 'italic', fontWeight: 400, fontSize: 12, color: 'var(--text-muted)' }}>Not set</span>}
+                        </td>
+                        <td>
+                          <div style={{ display: 'flex', gap: 6 }}>
+                            <button className="btn btn-ghost btn-sm" onClick={() => { setEditCourse(course); setCourseForm({ service_name: course.service_name, price_dzd: course.price_dzd, description: course.description || '' }); }}>
+                              <Edit2 size={12} />
+                            </button>
+                            <button className="btn btn-danger btn-sm" onClick={() => { if (window.confirm('Delete ' + course.service_name + '?')) deleteCourseMutation.mutate(course.id); }}>
+                              <Trash2 size={12} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Add Course Modal */}
+          <Modal open={showAddCourse} onClose={() => setShowAddCourse(false)} title="Add Course Price">
+            <div className="modal-body">
+              <div className="form-group">
+                <label className="form-label">Course Name *</label>
+                <input className="form-input" value={courseForm.service_name} onChange={e => setCourseForm(f => ({ ...f, service_name: e.target.value }))} placeholder="e.g. Mathematics — Level 3" autoFocus />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Description</label>
+                <input className="form-input" value={courseForm.description} onChange={e => setCourseForm(f => ({ ...f, description: e.target.value }))} placeholder="e.g. 3 sessions per week, 90 min each" />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Price (DZD / month)</label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <input className="form-input" type="number" value={courseForm.price_dzd} onChange={e => setCourseForm(f => ({ ...f, price_dzd: e.target.value }))} placeholder="e.g. 5000" min="0" step="100" style={{ flex: 1 }} />
+                  <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-muted)' }}>DZD</span>
+                </div>
+                {parseFloat(courseForm.price_dzd) > 0 && (
+                  <div style={{ marginTop: 6, fontSize: 12, color: 'var(--primary)' }}>
+                    Preview: {parseFloat(courseForm.price_dzd).toLocaleString()} DZD/month
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={() => setShowAddCourse(false)}>Cancel</button>
+              <button className="btn btn-primary" disabled={!courseForm.service_name || createCourseMutation.isPending} onClick={() => createCourseMutation.mutate(courseForm)}>
+                {createCourseMutation.isPending ? 'Adding…' : 'Add Course Price'}
+              </button>
+            </div>
+          </Modal>
+        </div>
+      )}
       <Modal open={showCreate} onClose={() => setShowCreate(false)} title="New Fee" size="modal-xl">
         <div className="modal-body">
           <div className="form-grid form-grid-2" style={{ marginBottom: 16 }}>

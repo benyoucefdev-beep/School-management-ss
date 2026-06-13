@@ -3,7 +3,7 @@
 
 import {
   LayoutDashboard, Users, BookOpen, DollarSign,
-  TrendingUp, GraduationCap, Settings,
+  TrendingUp, GraduationCap,
   ClipboardList, Layers,
   UserCheck, Baby
 } from 'lucide-react';
@@ -92,7 +92,6 @@ const NAV_CONFIG = {
 
     { divider: true, label: 'Management' },
     { label: 'Team',              path: '/team',              icon: UserCheck },
-    { label: 'Settings',          path: '/settings',          icon: Settings },
   ],
 
   // Owner alias — same as admin
@@ -115,7 +114,6 @@ const NAV_CONFIG = {
 
     { divider: true, label: 'Management' },
     { label: 'Team',              path: '/team',              icon: UserCheck },
-    { label: 'Settings',          path: '/settings',          icon: Settings },
   ],
 
   manager: [

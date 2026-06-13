@@ -9,18 +9,15 @@ import { format } from 'date-fns';
 import { ROLE_LABELS, ROLE_BADGE_CLASS } from '../config/roleNav';
 
 const VALID_ROLES = [
-  { value: 'admin',              label: 'Admin' },
-  { value: 'graphic_designer',   label: 'Graphic Designer' },
-  { value: 'software_developer', label: 'Software Developer' },
-  { value: 'printer',            label: 'Printer' },
-  { value: 'ads_manager',        label: 'Ads Manager' },
+  { value: 'admin',   label: 'Admin — Full access' },
+  { value: 'manager', label: 'Manager — School operations' },
 ];
 
 function initials(name) {
   return name?.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() || '?';
 }
 
-const EMPTY_FORM = { name: '', username: '', email: '', password: '', role: 'graphic_designer' };
+const EMPTY_FORM = { name: '', username: '', email: '', password: '', role: 'manager' };
 
 export default function TeamPage() {
   const qc = useQueryClient();

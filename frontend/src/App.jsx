@@ -5,7 +5,7 @@ import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { Menu, X, User, LogOut, ChevronDown } from 'lucide-react';
+import { Menu, X, User, LogOut, ChevronDown, Settings } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import RoleGuard from './components/RoleGuard';
 import NotificationBell from './components/NotificationBell';
@@ -97,6 +97,9 @@ function ProfileDropdown() {
           </div>
           <button onClick={() => { navigate('/profile'); setOpen(false); }} style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '12px 16px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-primary)', fontSize: 14, transition: 'background 0.15s', textAlign: 'left' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--bg)'} onMouseLeave={e => e.currentTarget.style.background = 'none'}>
             <User size={15} /> My Profile
+          </button>
+          <button onClick={() => { navigate('/settings'); setOpen(false); }} style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '12px 16px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-primary)', fontSize: 14, transition: 'background 0.15s', textAlign: 'left' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--bg)'} onMouseLeave={e => e.currentTarget.style.background = 'none'}>
+            <Settings size={15} /> Settings
           </button>
           <div style={{ height: 1, background: 'var(--border)' }} />
           <button onClick={() => { logout(); navigate('/login'); setOpen(false); }} style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '12px 16px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--danger)', fontSize: 14, transition: 'background 0.15s', textAlign: 'left' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(239,68,68,0.06)'} onMouseLeave={e => e.currentTarget.style.background = 'none'}>
