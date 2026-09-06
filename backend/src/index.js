@@ -20,18 +20,31 @@ const allowedOrigins = [
   'http://localhost:3000',
 ].filter(Boolean);
 
-// Opt-in only, e.g. VERCEL_PREVIEW_ORIGIN=https://school-management-git-x.vercel.app
+// URLs Vercel injects for this deployment
+for (const v of [process.env.VERCEL_PROJECT_PRODUCTION_URL, process.env.VERCEL_URL, process.env.VERCEL_BRANCH_URL]) {
+  if (v) allowedOrigins.push(v.startsWith('http') ? v : `https://${v}`);
+}
+// Extra origins, comma-separated, e.g. VERCEL_PREVIEW_ORIGIN=https://foo.vercel.app
 if (process.env.VERCEL_PREVIEW_ORIGIN) {
   allowedOrigins.push(...process.env.VERCEL_PREVIEW_ORIGIN.split(',').map(o => o.trim()));
 }
 
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin) return callback(null, true); // curl / server-to-server calls
-    if (allowedOrigins.includes(origin)) return callback(null, true);
-    callback(new Error('Not allowed by CORS'));
-  },
-  credentials: true,
+// Same-origin is always allowed: the SPA and the API are served from the same
+// Vercel deployment, and browsers DO send Origin on same-origin POSTs.
+// Cross-origin is allowlist-only — no startsWith(), no blanket *.vercel.app.
+app.use(cors((req, callback) => {
+  const origin = req.headers.origin;
+  const allow  = { origin: true, credentials: true };
+  const denyCors = { origin: false }; // no CORS headers; request still runs
+
+  if (!origin) return callback(null, allow); // curl / server-to-server
+
+  let originHost;
+  try { originHost = new URL(origin).host; } catch { return callback(null, denyCors); }
+
+  if (originHost === req.headers.host) return callback(null, allow); // same deployment
+  if (allowedOrigins.includes(origin))  return callback(null, allow);
+  return callback(null, denyCors);
 }));
 
 app.use(compression()); // gzip all responses — ~60-70% smaller JSON payloads
@@ -86,9 +99,6 @@ app.use((req, res) => {
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
   console.error('[error]', req.method, req.originalUrl, err.stack || err);
-  if (err && err.message === 'Not allowed by CORS') {
-    return res.status(403).json({ error: 'Origin not allowed' });
-  }
   res.status(500).json({ error: 'Internal server error' });
 });
 
