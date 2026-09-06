@@ -41,7 +41,7 @@
   "crons": [
     {
       "path": "/api/attendance/cron",
-      "schedule": "*/15 * * * *"
+      "schedule": "0 18 * * *"
     }
   ]
 }

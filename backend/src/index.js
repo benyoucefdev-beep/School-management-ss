@@ -55,9 +55,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
 // ── Public Routes (no auth) ────────────────────────────────────
-// routes/portal.js and routes/supplier-portal.js do not exist in this repo.
-// They are mounted optionally further down; requiring them here crashed boot.
-
 // ── Core Routes ────────────────────────────────────────────────
 app.use('/api/auth',       require('./routes/auth'));
 app.use('/api/users',      require('./routes/users'));
@@ -78,10 +75,6 @@ app.use('/api/finance',    require('./routes/finance'));
 // ── Management Routes ──────────────────────────────────────────
 app.use('/api/team',          require('./routes/team'));
 app.use('/api/notifications', require('./routes/notifications'));
-
-// ── Legacy backward-compat aliases (portal still uses /portal/:token) ──
-try { app.use('/api/portal', require('./routes/portal')); } catch(e) {}
-try { app.use('/api/supplier-portal', require('./routes/supplier-portal')); } catch(e) {}
 
 // Health check
 app.get('/api/health', (req, res) => {
