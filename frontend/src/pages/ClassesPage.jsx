@@ -19,22 +19,22 @@ export default function ClassesPage() {
 
   const { data: classes = [], isLoading } = useQuery({
     queryKey: ['classes', search],
-    queryFn: () => api.get('/classes', { params: { search, limit: 100 } }).then(r => r.data?.classes || r.data || []),
+    queryFn: () => api.get('/classes', { params: { search, limit: 100 } }).then(r => (Array.isArray(r.data) ? r.data : r.data?.data ?? r.data?.classes ?? [])),
   });
 
   const { data: teachers = [] } = useQuery({
     queryKey: ['teachers-list'],
-    queryFn: () => api.get('/teachers', { params: { limit: 100 } }).then(r => r.data?.teachers || r.data || []),
+    queryFn: () => api.get('/teachers', { params: { limit: 100 } }).then(r => (Array.isArray(r.data) ? r.data : r.data?.data ?? r.data?.teachers ?? [])),
   });
 
   const { data: groups = [] } = useQuery({
     queryKey: ['groups-list'],
-    queryFn: () => api.get('/groups').then(r => r.data?.groups || r.data || []),
+    queryFn: () => api.get('/groups').then(r => (Array.isArray(r.data) ? r.data : r.data?.data ?? r.data?.groups ?? [])),
   });
 
   const { data: subjects = [] } = useQuery({
     queryKey: ['subjects-list'],
-    queryFn: () => api.get('/subjects').then(r => r.data?.subjects || r.data || []),
+    queryFn: () => api.get('/subjects').then(r => (Array.isArray(r.data) ? r.data : r.data?.data ?? r.data?.subjects ?? [])),
   });
 
   const createMutation = useMutation({
@@ -136,7 +136,7 @@ export default function ClassesPage() {
 
       {/* Create Class Modal */}
       {showModal && (
-        <div className="modal-backdrop" onClick={() => setShowModal(false)}>
+        <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
               <h2 className="modal-title">New Class</h2>

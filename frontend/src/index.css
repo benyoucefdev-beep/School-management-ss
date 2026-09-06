@@ -1283,6 +1283,20 @@ input, textarea, select {
   to { transform: translateY(0) scale(1); opacity: 1; }
 }
 
+/* Close button used by the page-level modals (Students / Teachers / Classes) */
+.modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  padding: 6px 10px;
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  transition: background 0.15s, color 0.15s;
+}
+.modal-close:hover { background: var(--bg); color: var(--text-primary); }
+
 .modal-lg { max-width: 800px; }
 .modal-xl { max-width: 1000px; }
 

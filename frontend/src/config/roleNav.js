@@ -86,7 +86,6 @@ const NAV_CONFIG = {
     { label: 'Parents',           path: '/parents',           icon: Baby },
 
     { divider: true, label: 'Finance' },
-    { label: 'Tuition Fees',      path: '/finance/invoices',  icon: DollarSign },
     { label: 'Expenses',          path: '/finance/expenses',  icon: ClipboardList },
     { label: 'Financial Report',  path: '/finance/pl',        icon: TrendingUp },
 
@@ -108,7 +107,6 @@ const NAV_CONFIG = {
     { label: 'Parents',           path: '/parents',           icon: Baby },
 
     { divider: true, label: 'Finance' },
-    { label: 'Tuition Fees',      path: '/finance/invoices',  icon: DollarSign },
     { label: 'Expenses',          path: '/finance/expenses',  icon: ClipboardList },
     { label: 'Financial Report',  path: '/finance/pl',        icon: TrendingUp },
 

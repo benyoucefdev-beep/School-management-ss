@@ -67,8 +67,8 @@ export default function DashboardPage() {
         <StatCard label="Groups" value={fmt(stats.total_groups)} icon={Layers} color="#8b5cf6" sub="Study groups" to="/groups" />
         {isAdmin && (
           <>
-            <StatCard label="Fees Collected" value={`${fmt(stats.revenue_this_month)} DZD`} icon={DollarSign} color="var(--success)" sub="This month" to="/finance/invoices" />
-            <StatCard label="Overdue Fees" value={fmt(stats.overdue_invoices)} icon={AlertTriangle} color="var(--danger)" sub="Require attention" to="/finance/invoices" />
+            <StatCard label="Fees Collected" value={`${fmt(stats.revenue_this_month)} DZD`} icon={DollarSign} color="var(--success)" sub="This month" to="/finance/pl" />
+            <StatCard label="Overdue Fees" value={fmt(stats.overdue_invoices)} icon={AlertTriangle} color="var(--danger)" sub="Require attention" to="/finance/pl" />
           </>
         )}
       </div>

@@ -56,22 +56,24 @@ router.get('/:id', canView('classes'), async (req, res) => {
 
 // ── POST /api/subjects ───────────────────────────────────────────
 router.post('/', canCreate('classes'), async (req, res) => {
-  const { name, name_ar, description, color_code, payment_due_day, monthly_fee, hours_per_week } = req.body;
+  const { name, name_ar, description, color_code, payment_due_day, monthly_fee, hours_per_week, sessions_per_week, session_minutes, late_grace_minutes } = req.body;
   if (!name) return res.status(400).json({ error: 'name is required' });
   try {
     const { rows: [s] } = await pool.query(`
-      INSERT INTO subjects (name, name_ar, description, color_code, payment_due_day, monthly_fee, hours_per_week)
-      VALUES ($1,$2,$3,$4,$5,$6,$7)
+      INSERT INTO subjects (name, name_ar, description, color_code, payment_due_day, monthly_fee, hours_per_week,
+                            sessions_per_week, session_minutes, late_grace_minutes)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
       RETURNING *
     `, [name, name_ar||null, description||null, color_code||'#00b4d8',
-        payment_due_day||1, monthly_fee||0, hours_per_week||0]);
+        payment_due_day||1, monthly_fee||0, hours_per_week||0,
+        sessions_per_week||1, session_minutes||60, late_grace_minutes ?? 10]);
     res.status(201).json(s);
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 // ── PUT /api/subjects/:id ────────────────────────────────────────
 router.put('/:id', canEdit('classes'), async (req, res) => {
-  const { name, name_ar, description, color_code, payment_due_day, monthly_fee, hours_per_week, is_active } = req.body;
+  const { name, name_ar, description, color_code, payment_due_day, monthly_fee, hours_per_week, is_active, sessions_per_week, session_minutes, late_grace_minutes } = req.body;
   try {
     const { rows: [s] } = await pool.query(`
       UPDATE subjects SET
@@ -82,9 +84,13 @@ router.put('/:id', canEdit('classes'), async (req, res) => {
         payment_due_day  = COALESCE($5, payment_due_day),
         monthly_fee      = COALESCE($6, monthly_fee),
         hours_per_week   = COALESCE($7, hours_per_week),
-        is_active        = COALESCE($8, is_active)
-      WHERE id = $9 RETURNING *
-    `, [name, name_ar, description, color_code, payment_due_day, monthly_fee, hours_per_week, is_active, req.params.id]);
+        is_active        = COALESCE($8, is_active),
+        sessions_per_week  = COALESCE($9, sessions_per_week),
+        session_minutes    = COALESCE($10, session_minutes),
+        late_grace_minutes = COALESCE($11, late_grace_minutes)
+      WHERE id = $12 RETURNING *
+    `, [name, name_ar, description, color_code, payment_due_day, monthly_fee, hours_per_week, is_active,
+        sessions_per_week ?? null, session_minutes ?? null, late_grace_minutes ?? null, req.params.id]);
     if (!s) return res.status(404).json({ error: 'Subject not found' });
     res.json(s);
   } catch (err) { res.status(500).json({ error: err.message }); }

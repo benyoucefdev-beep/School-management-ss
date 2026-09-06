@@ -14,12 +14,12 @@ export default function StudentsPage() {
 
   const { data: students = [], isLoading } = useQuery({
     queryKey: ['students', search],
-    queryFn: () => api.get('/students', { params: { search, limit: 100 } }).then(r => r.data?.students || r.data || []),
+    queryFn: () => api.get('/students', { params: { search, limit: 100 } }).then(r => (Array.isArray(r.data) ? r.data : r.data?.data ?? r.data?.students ?? [])),
   });
 
   const { data: groups = [] } = useQuery({
     queryKey: ['groups-list'],
-    queryFn: () => api.get('/groups').then(r => r.data?.groups || r.data || []),
+    queryFn: () => api.get('/groups').then(r => (Array.isArray(r.data) ? r.data : r.data?.data ?? r.data?.groups ?? [])),
   });
 
   const createMutation = useMutation({
@@ -138,7 +138,7 @@ export default function StudentsPage() {
 
       {/* Add Student Modal */}
       {showModal && (
-        <div className="modal-backdrop" onClick={() => setShowModal(false)}>
+        <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
               <h2 className="modal-title">Add New Student</h2>

@@ -70,6 +70,7 @@ app.use('/api/classes',    require('./routes/classes'));
 app.use('/api/groups',     require('./routes/groups'));
 app.use('/api/subjects',   require('./routes/subjects'));
 app.use('/api/parents',    require('./routes/parents'));
+app.use('/api/attendance', require('./routes/attendance'));
 
 // ── Finance Routes ─────────────────────────────────────────────
 app.use('/api/finance',    require('./routes/finance'));
@@ -110,6 +111,7 @@ if (!process.env.VERCEL) {
   const { startDailyNotificationCron } = require('./jobs/notificationCron');
   const { startWeeklyDigestCron } = require('./jobs/weeklyDigestCron');
   const { startSupplierCron } = require('./jobs/supplierCron');
+  const { startAttendanceCron } = require('./jobs/attendanceCron');
 
   app.listen(PORT, () => {
     console.log(`\n🚀 EduManage API running on http://localhost:${PORT}`);
@@ -117,6 +119,7 @@ if (!process.env.VERCEL) {
     startDailyNotificationCron();
     startWeeklyDigestCron();
     startSupplierCron();
+    startAttendanceCron();
   });
 }
 

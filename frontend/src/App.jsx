@@ -27,7 +27,6 @@ const SubjectsPage       = lazy(() => import('./pages/SubjectsPage'));
 const ParentsPage        = lazy(() => import('./pages/ParentsPage'));
 
 // Finance
-const InvoicesPage       = lazy(() => import('./pages/InvoicesPage'));
 const ExpensesPage       = lazy(() => import('./pages/ExpensesPage'));
 const PLPage             = lazy(() => import('./pages/PLPage'));
 
@@ -197,8 +196,7 @@ function AppRoutes() {
       <Route path="/subjects"    element={<ProtectedRoute><RoleGuard allowedRoles={MANAGER_UP}><SubjectsPage /></RoleGuard></ProtectedRoute>} />
       <Route path="/parents"     element={<ProtectedRoute><RoleGuard allowedRoles={MANAGER_UP}><ParentsPage /></RoleGuard></ProtectedRoute>} />
 
-      {/* Finance — admin only */}
-      <Route path="/finance/invoices" element={<ProtectedRoute><RoleGuard allowedRoles={MANAGER_UP}><InvoicesPage /></RoleGuard></ProtectedRoute>} />
+      {/* Finance */}
       <Route path="/finance/expenses" element={<ProtectedRoute><RoleGuard allowedRoles={MANAGER_UP}><ExpensesPage /></RoleGuard></ProtectedRoute>} />
       <Route path="/finance/pl"       element={<ProtectedRoute><RoleGuard allowedRoles={MANAGER_UP}><PLPage /></RoleGuard></ProtectedRoute>} />
 

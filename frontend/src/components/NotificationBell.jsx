@@ -17,9 +17,9 @@ const TYPE_ICON = {
 const TYPE_LINK = {
   task_assigned: (id) => `/tasks`,
   task_due_tomorrow: (id) => `/tasks`,
-  invoice_overdue: (id) => `/finance/invoices`,
+  invoice_overdue: (id) => `/finance/pl`,
   ads_budget_alert: (id) => `/ads`,
-  ad_campaign_ended: (id) => `/finance/invoices`,
+  ad_campaign_ended: (id) => `/finance/pl`,
 };
 
 // A short, subtle "pop" notification sound

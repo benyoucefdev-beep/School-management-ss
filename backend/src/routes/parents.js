@@ -109,6 +109,67 @@ router.get('/me/children/:studentId/payments', parentAuth, async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+
+// ── GET /api/parents/me/notifications — absence / lateness alerts ────────────
+router.get('/me/notifications', parentAuth, async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT gn.*, s.full_name AS student_name
+         FROM guardian_notifications gn
+         LEFT JOIN students s ON s.id = gn.student_id
+        WHERE gn.parent_id = $1
+        ORDER BY gn.created_at DESC
+        LIMIT 100`,
+      [req.parent.id]
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error('[parents/notifications]', err);
+    res.status(500).json({ error: 'Could not load notifications' });
+  }
+});
+
+// ── PUT /api/parents/me/notifications/:id/read ──────────────────────────────
+router.put('/me/notifications/:id/read', parentAuth, async (req, res) => {
+  try {
+    const { rows: [row] } = await pool.query(
+      `UPDATE guardian_notifications SET is_read = TRUE
+        WHERE id = $1 AND parent_id = $2 RETURNING id`,
+      [req.params.id, req.parent.id]
+    );
+    if (!row) return res.status(404).json({ error: 'Notification not found' });
+    res.json({ message: 'Marked as read' });
+  } catch (err) {
+    console.error('[parents/notifications/read]', err);
+    res.status(500).json({ error: 'Could not update notification' });
+  }
+});
+
+// ── GET /api/parents/me/children/:studentId/attendance ──────────────────────
+router.get('/me/children/:studentId/attendance', parentAuth, async (req, res) => {
+  try {
+    const { rows: [link] } = await pool.query(
+      'SELECT 1 FROM parent_students WHERE parent_id=$1 AND student_id=$2',
+      [req.parent.id, req.params.studentId]
+    );
+    if (!link) return res.status(403).json({ error: 'Access denied' });
+
+    const { rows } = await pool.query(
+      `SELECT a.*, sub.name AS subject_name
+         FROM attendance a
+         LEFT JOIN subjects sub ON sub.id = a.subject_id
+        WHERE a.student_id = $1
+        ORDER BY a.session_date DESC, a.session_start DESC
+        LIMIT 100`,
+      [req.params.studentId]
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error('[parents/child-attendance]', err);
+    res.status(500).json({ error: 'Could not load attendance' });
+  }
+});
+
 // ════════════════════════════════════════════════════════════════
 // ADMIN ROUTES (staff JWT required)
 // ════════════════════════════════════════════════════════════════

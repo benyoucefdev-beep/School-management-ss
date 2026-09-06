@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, GraduationCap, Mail, Phone, Users, FileText, DollarSign, Trash2, Plus } from 'lucide-react';
 import api from '../lib/api';
+import StudentCard from '../components/StudentCard';
 import toast from 'react-hot-toast';
 
 export default function StudentDetailPage() {
@@ -33,6 +34,12 @@ export default function StudentDetailPage() {
     mutationFn: () => api.post(`/students/${id}/notes`, { content: noteText }).then(r => r.data),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['student-notes', id] }); setNoteText(''); toast.success('Note added'); },
     onError: (e) => toast.error(e.response?.data?.error || 'Failed to add note'),
+  });
+
+  const reissueMutation = useMutation({
+    mutationFn: () => api.post(`/students/${id}/reissue-scan-code`).then(r => r.data),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['student', id] }); toast.success('New card issued — the old QR no longer works'); },
+    onError: (e) => toast.error(e.response?.data?.error || 'Could not reissue card'),
   });
 
   const deleteMutation = useMutation({
@@ -74,6 +81,11 @@ export default function StudentDetailPage() {
         {[['info', 'Info'], ['notes', 'Notes'], ['payments', 'Payments']].map(([key, label]) => (
           <button key={key} className={`tab ${tab === key ? 'tab-active' : ''}`} onClick={() => setTab(key)}>{label}</button>
         ))}
+      </div>
+
+      {/* Student card — identity + attendance QR, shown on every tab */}
+      <div style={{ marginBottom: 20 }}>
+        <StudentCard student={s} onReissue={() => reissueMutation.mutate()} />
       </div>
 
       {/* Info Tab */}

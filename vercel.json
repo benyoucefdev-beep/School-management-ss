@@ -8,23 +8,16 @@
     {
       "src": "frontend/package.json",
       "use": "@vercel/static-build",
-      "config": { "distDir": "dist" }
+      "config": {
+        "distDir": "dist"
+      }
     }
   ],
   "routes": [
     {
-      "src": "/api/notifications/daily-cron",
-      "dest": "backend/src/index.js"
-    },
-    {
-      "src": "/api/digest/weekly-cron",
-      "dest": "backend/src/index.js"
-    },
-    {
       "src": "/api/(.*)",
       "dest": "backend/src/index.js"
     },
-
     {
       "src": "/assets/(.*)",
       "dest": "/frontend/assets/$1"
@@ -47,12 +40,8 @@
   ],
   "crons": [
     {
-      "path": "/api/notifications/daily-cron",
-      "schedule": "0 8 * * *"
-    },
-    {
-      "path": "/api/digest/weekly-cron",
-      "schedule": "0 8 * * 1"
+      "path": "/api/attendance/cron",
+      "schedule": "*/15 * * * *"
     }
   ]
 }

@@ -107,6 +107,9 @@ function SubjectForm({ initial, onSave, onClose }) {
     payment_due_day: initial?.payment_due_day || 1,
     monthly_fee:     initial?.monthly_fee     || 0,
     hours_per_week:  initial?.hours_per_week  || 0,
+    sessions_per_week:  initial?.sessions_per_week  ?? 1,
+    session_minutes:    initial?.session_minutes    ?? 60,
+    late_grace_minutes: initial?.late_grace_minutes ?? 10,
   });
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
@@ -140,6 +143,24 @@ function SubjectForm({ initial, onSave, onClose }) {
             <label className="form-label">Hours / Week</label>
             <input className="form-input" type="number" min={0} step={0.5}
               value={form.hours_per_week} onChange={e => set('hours_per_week', parseFloat(e.target.value))} />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Sessions per week</label>
+            <input className="form-input" type="number" min="0" step="1"
+              value={form.sessions_per_week} onChange={e => set('sessions_per_week', parseInt(e.target.value) || 0)} />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Minutes per session</label>
+            <input className="form-input" type="number" min="0" step="5"
+              value={form.session_minutes} onChange={e => set('session_minutes', parseInt(e.target.value) || 0)} />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Late after (minutes)</label>
+            <input className="form-input" type="number" min="0" step="1"
+              value={form.late_grace_minutes} onChange={e => set('late_grace_minutes', parseInt(e.target.value) || 0)} />
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>
+              A scan after this many minutes counts as late and notifies the parent.
+            </div>
           </div>
           <div className="form-group">
             <label className="form-label">Color</label>
@@ -330,6 +351,16 @@ export default function SubjectsPage() {
                     <DollarSign size={10} />
                     {parseFloat(subj.monthly_fee).toFixed(0)} DZD/mo
                   </div>
+                )}
+                {subj.sessions_per_week > 0 && (
+                  <span className="badge badge-blue">
+                    {subj.sessions_per_week}× / week
+                  </span>
+                )}
+                {subj.session_minutes > 0 && (
+                  <span className="badge badge-teal">
+                    {subj.session_minutes} min/session
+                  </span>
                 )}
                 {subj.hours_per_week > 0 && (
                   <div className="subject-chip">

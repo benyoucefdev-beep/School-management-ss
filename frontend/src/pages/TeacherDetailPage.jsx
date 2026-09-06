@@ -20,7 +20,7 @@ export default function TeacherDetailPage() {
 
   const { data: subjects = [] } = useQuery({
     queryKey: ['teacher-subjects', id],
-    queryFn: () => api.get(`/teachers/${id}/subjects`).then(r => r.data?.subjects || r.data || []),
+    queryFn: () => api.get(`/teachers/${id}/subjects`).then(r => (Array.isArray(r.data) ? r.data : r.data?.data ?? r.data?.subjects ?? [])),
     enabled: tab === 'subjects',
   });
 

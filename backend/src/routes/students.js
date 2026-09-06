@@ -74,14 +74,14 @@ router.get('/:id', canView('students'), async (req, res) => {
 
 // ── POST /api/students ────────────────────────────────────────────────────────
 router.post('/', canCreate('students'), async (req, res) => {
-  const { full_name, email, phone, student_phone, father_phone, date_of_birth, level, group_id, enrollment_date, notes } = req.body;
+  const { full_name, email, phone, student_phone, father_phone, date_of_birth, level, group_id, enrollment_date, notes, is_adult } = req.body;
   if (!full_name) return res.status(400).json({ error: 'full_name is required' });
   try {
     const { rows: [s] } = await pool.query(`
-      INSERT INTO students (full_name, email, phone, student_phone, father_phone, date_of_birth, level, group_id, enrollment_date, notes, assigned_user_id)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+      INSERT INTO students (full_name, email, phone, student_phone, father_phone, date_of_birth, level, group_id, enrollment_date, notes, assigned_user_id, is_adult)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
       RETURNING *
-    `, [full_name, email||null, phone||null, student_phone||null, father_phone||null, date_of_birth||null, level||null, group_id||null, enrollment_date||null, notes||null, req.user.id]);
+    `, [full_name, email||null, phone||null, student_phone||null, father_phone||null, date_of_birth||null, level||null, group_id||null, enrollment_date||null, notes||null, req.user.id, is_adult === true]);
 
     // Auto-enroll in group
     if (group_id) {
@@ -94,7 +94,7 @@ router.post('/', canCreate('students'), async (req, res) => {
 
 // ── PUT /api/students/:id ─────────────────────────────────────────────────────
 router.put('/:id', canEdit('students'), async (req, res) => {
-  const { full_name, email, phone, student_phone, father_phone, date_of_birth, level, group_id, enrollment_date, status, notes, assigned_user_id } = req.body;
+  const { full_name, email, phone, student_phone, father_phone, date_of_birth, level, group_id, enrollment_date, status, notes, assigned_user_id, is_adult } = req.body;
   try {
     const { rows: [existing] } = await pool.query('SELECT group_id FROM students WHERE id = $1', [req.params.id]);
     const { rows: [s] } = await pool.query(`
@@ -110,10 +110,11 @@ router.put('/:id', canEdit('students'), async (req, res) => {
         enrollment_date = COALESCE($9,  enrollment_date),
         status          = COALESCE($10, status),
         notes           = COALESCE($11, notes),
-        assigned_user_id = COALESCE($12, assigned_user_id)
-      WHERE id = $13
+        assigned_user_id = COALESCE($12, assigned_user_id),
+        is_adult         = COALESCE($13, is_adult)
+      WHERE id = $14
       RETURNING *
-    `, [full_name, email, phone, student_phone, father_phone, date_of_birth, level, group_id, enrollment_date, status, notes, assigned_user_id, req.params.id]);
+    `, [full_name, email, phone, student_phone, father_phone, date_of_birth, level, group_id, enrollment_date, status, notes, assigned_user_id, is_adult ?? null, req.params.id]);
 
     if (!s) return res.status(404).json({ error: 'Student not found' });
 
@@ -217,16 +218,85 @@ router.post('/:id/uploads/:uploadId/notes', canCreate('students'), async (req, r
 });
 
 // ── QR CODE ───────────────────────────────────────────────────────────────────
+// Encodes the student's scan_code — the value the gate scanner reads to record
+// attendance. Deliberately NOT the portal_token: reissuing a lost badge must not
+// invalidate the student's portal login.
 router.get('/:id/qr', canView('students'), async (req, res) => {
   try {
     const QRCode = require('qrcode');
-    const { rows: [s] } = await pool.query('SELECT portal_token FROM students WHERE id = $1', [req.params.id]);
+    const { rows: [s] } = await pool.query('SELECT scan_code FROM students WHERE id = $1', [req.params.id]);
     if (!s) return res.status(404).json({ error: 'Student not found' });
-    const url = `${process.env.FRONTEND_URL || 'https://school-management-six-black.vercel.app'}/portal/${s.portal_token}`;
-    const png = await QRCode.toBuffer(url, { width: 400, margin: 2 });
+    if (!s.scan_code) return res.status(409).json({ error: 'Student has no scan code yet' });
+    const png = await QRCode.toBuffer(s.scan_code, { width: 400, margin: 2 });
     res.setHeader('Content-Type', 'image/png');
+    res.setHeader('Cache-Control', 'private, max-age=300');
     res.send(png);
-  } catch (err) { res.status(500).json({ error: err.message }); }
+  } catch (err) {
+    console.error('[students/qr]', err);
+    res.status(500).json({ error: 'Could not generate QR code' });
+  }
+});
+
+// ── POST /:id/reissue-scan-code — invalidate a lost student card ─────────────
+router.post('/:id/reissue-scan-code', canEdit('students'), async (req, res) => {
+  try {
+    const { rows: [s] } = await pool.query(
+      `UPDATE students SET scan_code = encode(gen_random_bytes(12), 'hex'),
+                           scan_code_issued_at = NOW()
+        WHERE id = $1 RETURNING id, scan_code, scan_code_issued_at`,
+      [req.params.id]
+    );
+    if (!s) return res.status(404).json({ error: 'Student not found' });
+    res.json(s);
+  } catch (err) {
+    console.error('[students/reissue]', err);
+    res.status(500).json({ error: 'Could not reissue scan code' });
+  }
+});
+
+// ── SUBJECT ENROLMENT — who is expected at which course ─────────────────────
+router.get('/:id/subjects', canView('students'), async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT sub.*, ss.enrolled_at, ss.is_active
+         FROM student_subjects ss
+         JOIN subjects sub ON sub.id = ss.subject_id
+        WHERE ss.student_id = $1
+        ORDER BY sub.name`,
+      [req.params.id]
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error('[students/subjects]', err);
+    res.status(500).json({ error: 'Could not load subjects' });
+  }
+});
+
+router.post('/:id/subjects', canEdit('students'), async (req, res) => {
+  const { subject_id } = req.body;
+  if (!subject_id) return res.status(400).json({ error: 'subject_id is required' });
+  try {
+    await pool.query(
+      `INSERT INTO student_subjects (student_id, subject_id) VALUES ($1,$2)
+       ON CONFLICT (student_id, subject_id) DO UPDATE SET is_active = TRUE`,
+      [req.params.id, subject_id]
+    );
+    res.status(201).json({ message: 'Student enrolled in subject' });
+  } catch (err) {
+    console.error('[students/enrol]', err);
+    res.status(500).json({ error: 'Could not enrol student' });
+  }
+});
+
+router.delete('/:id/subjects/:subjectId', canEdit('students'), async (req, res) => {
+  try {
+    await pool.query('DELETE FROM student_subjects WHERE student_id=$1 AND subject_id=$2',
+      [req.params.id, req.params.subjectId]);
+    res.json({ message: 'Student removed from subject' });
+  } catch (err) {
+    console.error('[students/unenrol]', err);
+    res.status(500).json({ error: 'Could not remove student' });
+  }
 });
 
 // ── ACTIVITY LOG ──────────────────────────────────────────────────────────────
