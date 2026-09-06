@@ -1,3 +1,4 @@
+import asArray from '../lib/asArray';
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../lib/api';
@@ -49,7 +50,7 @@ export default function TeamPage() {
     queryFn: () => api.get('/team/workload').then(r => r.data),
   });
 
-  const workloadMap = Object.fromEntries(workload.map(w => [w.user_id, w]));
+  const workloadMap = Object.fromEntries(asArray(workload).map(w => [w.user_id, w]));
 
   const createMutation = useMutation({
     mutationFn: body => api.post('/team', body),
@@ -325,11 +326,11 @@ export default function TeamPage() {
         </div>
       )}
 
-      {workload.some(w => w.over_threshold) && (
+      {asArray(workload).some(w => w.over_threshold) && (
         <div className="card" style={{ marginTop: 16, borderLeft: '4px solid var(--warning)', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
           <AlertTriangle size={18} style={{ color: 'var(--warning)', flexShrink: 0 }} />
           <span style={{ fontSize: 13, color: 'var(--text-primary)' }}>
-            <strong>{workload.filter(w => w.over_threshold).length} member(s)</strong> exceed the workload threshold. Consider reassigning some tasks.
+            <strong>{asArray(workload).filter(w => w.over_threshold).length} member(s)</strong> exceed the workload threshold. Consider reassigning some tasks.
           </span>
         </div>
       )}

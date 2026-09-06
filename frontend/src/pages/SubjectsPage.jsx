@@ -1,3 +1,4 @@
+import asArray from '../lib/asArray';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../lib/api';
@@ -231,13 +232,13 @@ export default function SubjectsPage() {
     else createMutation.mutate(form);
   };
 
-  const filtered = subjects.filter(s =>
+  const filtered = asArray(subjects).filter(s =>
     s.name.toLowerCase().includes(search.toLowerCase()) ||
     (s.name_ar && s.name_ar.includes(search))
   );
 
-  const totalFee = subjects.reduce((s, sub) => s + parseFloat(sub.monthly_fee || 0), 0);
-  const totalHours = subjects.reduce((s, sub) => s + parseFloat(sub.hours_per_week || 0), 0);
+  const totalFee = asArray(subjects).reduce((s, sub) => s + parseFloat(sub.monthly_fee || 0), 0);
+  const totalHours = asArray(subjects).reduce((s, sub) => s + parseFloat(sub.hours_per_week || 0), 0);
 
   return (
     <div>
@@ -267,7 +268,7 @@ export default function SubjectsPage() {
           { icon: <DollarSign size={18} color="#06d6a0" />, bg: 'rgba(6,214,160,0.15)',
             val: `${totalFee.toFixed(0)} DZD`, lbl: 'Total Monthly Fees' },
           { icon: <UserCheck size={18} color="#f59e0b" />, bg: 'rgba(245,158,11,0.15)',
-            val: subjects.reduce((s,x) => s + (x.teachers?.length || 0), 0), lbl: 'Teacher Assignments' },
+            val: asArray(subjects).reduce((s,x) => s + (x.teachers?.length || 0), 0), lbl: 'Teacher Assignments' },
         ].map((s, i) => (
           <div className="stat-glass" key={i}>
             <div style={{ width: 40, height: 40, borderRadius: 11, background: s.bg,

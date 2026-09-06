@@ -72,7 +72,7 @@ export default function PLPage() {
             <option value="year">Annual</option>
           </select>
           <input
-            className="input"
+            className="form-input"
             type={scope === 'month' ? 'month' : 'number'}
             value={scope === 'month' ? monthInput : year}
             min={scope === 'year' ? 2000 : undefined}
@@ -99,7 +99,7 @@ export default function PLPage() {
             Period: {scope === 'month' ? monthInput : year}
           </div>
 
-          <div className="stats-grid" style={{ marginBottom: 24 }}>
+          <div className="form-grid form-grid-3" style={{ marginBottom: 24 }}>
             <MetricCard label="Tuition Revenue"  value={revenue}    icon={DollarSign} color="var(--success)" note="Payments + subject fees received" />
             <MetricCard label="School Expenses"  value={expenses}   icon={Wallet}     color="var(--warning)" note="Recorded expenses" negative />
             <MetricCard label="Teacher Payments" value={teacherPay} icon={Users}      color="hsl(280,70%,55%)" note="Paid to teaching staff" negative />

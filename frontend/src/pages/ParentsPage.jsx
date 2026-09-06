@@ -1,3 +1,4 @@
+import asArray from '../lib/asArray';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../lib/api';
@@ -298,16 +299,16 @@ export default function ParentsPage() {
     onSuccess: () => { qc.invalidateQueries(['absences']); toast.success('Absence removed'); },
   });
 
-  const selectedParent = parents.find(p => p.id === selectedId);
+  const selectedParent = asArray(parents).find(p => p.id === selectedId);
 
-  const filtered = parents.filter(p =>
+  const filtered = asArray(parents).filter(p =>
     p.name.toLowerCase().includes(search.toLowerCase()) ||
     (p.phone && p.phone.includes(search))
   );
 
   // Stats
-  const totalChildren = parents.reduce((s, p) => s + (p.children?.length || 0), 0);
-  const unjustified = absences.filter(a => !a.is_justified).length;
+  const totalChildren = asArray(parents).reduce((s, p) => s + (p.children?.length || 0), 0);
+  const unjustified = asArray(absences).filter(a => !a.is_justified).length;
 
   return (
     <div>
@@ -448,7 +449,7 @@ export default function ParentsPage() {
               <div className="tab-pills">
                 {[
                   { id: 'children', label: `Children (${selectedParent.children?.length || 0})`, icon: <Baby size={12} /> },
-                  { id: 'absences', label: `Absences (${absences.filter(a => selectedParent.children?.some(c => c.id === a.student_id)).length})`, icon: <AlertCircle size={12} /> },
+                  { id: 'absences', label: `Absences (${asArray(absences).filter(a => selectedParent.children?.some(c => c.id === a.student_id)).length})`, icon: <AlertCircle size={12} /> },
                 ].map(t => (
                   <button key={t.id} className={`tab-pill ${detailTab === t.id ? 'active' : ''}`}
                     onClick={() => setDetailTab(t.id)}
@@ -468,8 +469,8 @@ export default function ParentsPage() {
                     </div>
                   ) : (
                     (selectedParent.children || []).map(child => {
-                      const childAbsences = absences.filter(a => a.student_id === child.id);
-                      const unjust = childAbsences.filter(a => !a.is_justified).length;
+                      const childAbsences = asArray(absences).filter(a => a.student_id === child.id);
+                      const unjust = asArray(childAbsences).filter(a => !a.is_justified).length;
                       return (
                         <div key={child.id} className="child-card">
                           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -502,7 +503,7 @@ export default function ParentsPage() {
               {/* Absences tab */}
               {detailTab === 'absences' && (() => {
                 const childIds = new Set((selectedParent.children || []).map(c => c.id));
-                const parentAbsences = absences.filter(a => childIds.has(a.student_id));
+                const parentAbsences = asArray(absences).filter(a => childIds.has(a.student_id));
                 return (
                   <div className="absences-list">
                     {parentAbsences.length === 0 ? (

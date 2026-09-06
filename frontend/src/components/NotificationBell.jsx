@@ -1,3 +1,4 @@
+import asArray from '../lib/asArray';
 import { useState, useEffect, useRef } from 'react';
 import { Bell, X, Check } from 'lucide-react';
 import api from '../lib/api';
@@ -36,7 +37,7 @@ export default function NotificationBell() {
   const prevUnreadRef = useRef(0);
   const audioRef = useRef(new Audio(NOTIFICATION_SOUND_URL));
 
-  const unreadCount = notifications.filter(n => !n.is_read).length;
+  const unreadCount = asArray(notifications).filter(n => !n.is_read).length;
 
   // Sync the home screen app badge with current unread count
   const syncBadge = (count) => {
@@ -81,7 +82,7 @@ export default function NotificationBell() {
     if (unreadCount > prevUnreadRef.current && unreadCount > 0) {
       audioRef.current.play().catch(() => {});
       // If any of the new notifications are status_changed, tell sidebar to refresh immediately
-      const hasStatusChange = notifications.some(
+      const hasStatusChange = asArray(notifications).some(
         n => !n.is_read && n.type === 'status_changed'
       );
       if (hasStatusChange) {
@@ -236,7 +237,7 @@ export default function NotificationBell() {
                 <Bell size={32} style={{ marginBottom: 8, opacity: 0.3 }} />
                 <p style={{ margin: 0, fontSize: 13 }}>You're all caught up!</p>
               </div>
-            ) : notifications.map(n => (
+            ) : asArray(notifications).map(n => (
               <div
                 key={n.id}
                 onClick={() => handleNotificationClick(n)}

@@ -1,3 +1,4 @@
+import asArray from '../lib/asArray';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, BookOpen, Search, Users, Clock } from 'lucide-react';
@@ -48,7 +49,7 @@ export default function ClassesPage() {
     onError: (e) => toast.error(e.response?.data?.error || 'Failed to create class'),
   });
 
-  const filtered = classes.filter(c =>
+  const filtered = asArray(classes).filter(c =>
     !search || c.name?.toLowerCase().includes(search.toLowerCase()) ||
     c.teacher_name?.toLowerCase().includes(search.toLowerCase()) ||
     c.subject_name?.toLowerCase().includes(search.toLowerCase())
@@ -73,7 +74,7 @@ export default function ClassesPage() {
         <div style={{ position: 'relative' }}>
           <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
           <input
-            className="input"
+            className="form-input"
             placeholder="Search classes by name, teacher or subject…"
             value={search}
             onChange={e => setSearch(e.target.value)}
@@ -146,36 +147,36 @@ export default function ClassesPage() {
               <div className="form-grid-2">
                 <div className="form-group" style={{ gridColumn: '1/-1' }}>
                   <label className="form-label">Class Name *</label>
-                  <input className="input" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="e.g. Math – Group A, Monday" />
+                  <input className="form-input" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="e.g. Math – Group A, Monday" />
                 </div>
                 <div className="form-group">
                   <label className="form-label">Teacher</label>
-                  <select className="input" value={form.teacher_id} onChange={e => setForm(f => ({ ...f, teacher_id: e.target.value }))}>
+                  <select className="form-select" value={form.teacher_id} onChange={e => setForm(f => ({ ...f, teacher_id: e.target.value }))}>
                     <option value="">— Select teacher —</option>
                     {teachers.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
                   </select>
                 </div>
                 <div className="form-group">
                   <label className="form-label">Subject</label>
-                  <select className="input" value={form.subject_id} onChange={e => setForm(f => ({ ...f, subject_id: e.target.value }))}>
+                  <select className="form-select" value={form.subject_id} onChange={e => setForm(f => ({ ...f, subject_id: e.target.value }))}>
                     <option value="">— Select subject —</option>
                     {subjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                   </select>
                 </div>
                 <div className="form-group">
                   <label className="form-label">Group</label>
-                  <select className="input" value={form.group_id} onChange={e => setForm(f => ({ ...f, group_id: e.target.value }))}>
+                  <select className="form-select" value={form.group_id} onChange={e => setForm(f => ({ ...f, group_id: e.target.value }))}>
                     <option value="">— Select group —</option>
                     {groups.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
                   </select>
                 </div>
                 <div className="form-group">
                   <label className="form-label">Room</label>
-                  <input className="input" value={form.room} onChange={e => setForm(f => ({ ...f, room: e.target.value }))} placeholder="Room 101" />
+                  <input className="form-input" value={form.room} onChange={e => setForm(f => ({ ...f, room: e.target.value }))} placeholder="Room 101" />
                 </div>
                 <div className="form-group" style={{ gridColumn: '1/-1' }}>
                   <label className="form-label">Description</label>
-                  <textarea className="input" rows={2} value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Optional notes…" />
+                  <textarea className="form-textarea" rows={2} value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Optional notes…" />
                 </div>
               </div>
             </div>

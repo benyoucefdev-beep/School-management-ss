@@ -1,3 +1,4 @@
+import asArray from '../lib/asArray';
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../lib/api';
@@ -113,8 +114,8 @@ export default function ExpensesPage() {
   const updateVariable = useMutation({ mutationFn: ({ id, ...b }) => api.put(`/finance/expenses/variable/${id}`, b), onSuccess: () => { qc.invalidateQueries(['variable-expenses']); setEditVariable(null); toast.success('Updated'); }, onError: e => toast.error(e.response?.data?.error || 'Failed to update expense') });
   const deleteVariable = useMutation({ mutationFn: id => api.delete(`/finance/expenses/variable/${id}`), onSuccess: () => { qc.invalidateQueries(['variable-expenses']); toast.success('Deleted'); } });
 
-  const totalFixed = fixed.reduce((s, e) => s + parseFloat(e.amount || 0), 0);
-  const totalVariable = variable.reduce((s, e) => s + parseFloat(e.amount || 0), 0);
+  const totalFixed = asArray(fixed).reduce((s, e) => s + parseFloat(e.amount || 0), 0);
+  const totalVariable = asArray(variable).reduce((s, e) => s + parseFloat(e.amount || 0), 0);
 
   return (
     <div>
@@ -134,7 +135,7 @@ export default function ExpensesPage() {
           </div>
           {isMobile ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {fixed.map(e => {
+              {asArray(fixed).map(e => {
                 const isExpanded = !!expandedFixed[e.id];
                 return (
                   <div
@@ -219,7 +220,7 @@ export default function ExpensesPage() {
               <table className="data-table">
                 <thead><tr><th>Name</th><th>Amount</th><th>Frequency</th><th>Category</th><th></th></tr></thead>
                 <tbody>
-                  {fixed.map(e => (
+                  {asArray(fixed).map(e => (
                     <tr key={e.id}>
                       <td style={{ fontWeight: 600 }}>{e.name}</td>
                       <td>{parseFloat(e.amount).toLocaleString()} DZD</td>
@@ -248,7 +249,7 @@ export default function ExpensesPage() {
           </div>
           {isMobile ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {variable.map(e => {
+              {asArray(variable).map(e => {
                 const isExpanded = !!expandedVar[e.id];
                 return (
                   <div
@@ -344,7 +345,7 @@ export default function ExpensesPage() {
               <table className="data-table">
                 <thead><tr><th>Name</th><th>Amount</th><th>Category</th><th>Client</th><th>Date</th><th></th></tr></thead>
                 <tbody>
-                  {variable.map(e => (
+                  {asArray(variable).map(e => (
                     <tr key={e.id}>
                       <td style={{ fontWeight: 600 }}>{e.name}</td>
                       <td>{parseFloat(e.amount).toLocaleString()} DZD</td>

@@ -1,3 +1,4 @@
+import asArray from '../lib/asArray';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
@@ -33,7 +34,7 @@ export default function StudentsPage() {
     onError: (e) => toast.error(e.response?.data?.error || 'Failed to add student'),
   });
 
-  const filtered = students.filter(s =>
+  const filtered = asArray(students).filter(s =>
     !search || s.full_name?.toLowerCase().includes(search.toLowerCase()) ||
     s.email?.toLowerCase().includes(search.toLowerCase())
   );
@@ -67,7 +68,7 @@ export default function StudentsPage() {
         <div style={{ position: 'relative' }}>
           <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
           <input
-            className="input"
+            className="form-input"
             placeholder="Search students by name or email…"
             value={search}
             onChange={e => setSearch(e.target.value)}
@@ -158,23 +159,23 @@ export default function StudentsPage() {
               <div className="form-grid-2">
                 <div className="form-group">
                   <label className="form-label">Full Name *</label>
-                  <input className="input" value={form.full_name} onChange={e => setForm(f => ({ ...f, full_name: e.target.value }))} placeholder="Student full name" />
+                  <input className="form-input" value={form.full_name} onChange={e => setForm(f => ({ ...f, full_name: e.target.value }))} placeholder="Student full name" />
                 </div>
                 <div className="form-group">
                   <label className="form-label">Grade</label>
-                  <input className="input" value={form.grade} onChange={e => setForm(f => ({ ...f, grade: e.target.value }))} placeholder="e.g. 3A, Year 2" />
+                  <input className="form-input" value={form.grade} onChange={e => setForm(f => ({ ...f, grade: e.target.value }))} placeholder="e.g. 3A, Year 2" />
                 </div>
                 <div className="form-group">
                   <label className="form-label">Email</label>
-                  <input className="input" type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="student@example.com" />
+                  <input className="form-input" type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="student@example.com" />
                 </div>
                 <div className="form-group">
                   <label className="form-label">Phone</label>
-                  <input className="input" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="+213 …" />
+                  <input className="form-input" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="+213 …" />
                 </div>
                 <div className="form-group">
                   <label className="form-label">Group</label>
-                  <select className="input" value={form.group_id} onChange={e => setForm(f => ({ ...f, group_id: e.target.value }))}>
+                  <select className="form-select" value={form.group_id} onChange={e => setForm(f => ({ ...f, group_id: e.target.value }))}>
                     <option value="">— No group —</option>
                     {groups.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
                   </select>

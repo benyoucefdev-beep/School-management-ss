@@ -134,7 +134,7 @@ export default function StudentDetailPage() {
         <div>
           <div className="card" style={{ marginBottom: 16 }}>
             <textarea
-              className="input"
+              className="form-textarea"
               rows={3}
               placeholder="Add a note about this student…"
               value={noteText}
@@ -164,7 +164,7 @@ export default function StudentDetailPage() {
           {payments.length === 0 ? (
             <div className="empty-state"><DollarSign size={32} style={{ color: 'var(--text-muted)' }} /><p>No payment records yet</p></div>
           ) : (
-            <table className="table">
+            <table className="table-wrapper">
               <thead><tr><th>Subject</th><th>Amount</th><th>Due Date</th><th>Status</th></tr></thead>
               <tbody>
                 {payments.map(p => (

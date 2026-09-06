@@ -1,3 +1,4 @@
+import asArray from '../lib/asArray';
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
@@ -28,7 +29,7 @@ export default function TeachersPage() {
     onError: (e) => toast.error(e.response?.data?.error || 'Failed to add teacher'),
   });
 
-  const filtered = teachers.filter(t =>
+  const filtered = asArray(teachers).filter(t =>
     !search || t.name?.toLowerCase().includes(search.toLowerCase()) ||
     t.email?.toLowerCase().includes(search.toLowerCase()) ||
     t.speciality?.toLowerCase().includes(search.toLowerCase())

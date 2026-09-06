@@ -1,3 +1,4 @@
+import asArray from '../lib/asArray';
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../lib/api';
@@ -221,14 +222,14 @@ export default function GroupsPage() {
     else createMutation.mutate(form);
   };
 
-  const filtered = groups.filter(g =>
+  const filtered = asArray(groups).filter(g =>
     g.name.toLowerCase().includes(search.toLowerCase()) ||
     (g.level && g.level.toLowerCase().includes(search.toLowerCase()))
   );
 
-  const totalStudents = groups.reduce((sum, g) => sum + (g.student_count || 0), 0);
-  const totalCapacity = groups.reduce((sum, g) => sum + (g.max_students || 0), 0);
-  const activeGroups  = groups.filter(g => g.is_active).length;
+  const totalStudents = asArray(groups).reduce((sum, g) => sum + (g.student_count || 0), 0);
+  const totalCapacity = asArray(groups).reduce((sum, g) => sum + (g.max_students || 0), 0);
+  const activeGroups  = asArray(groups).filter(g => g.is_active).length;
 
   const CARD_GRADIENTS = [
     ['#00b4d8', '#0077b6'],

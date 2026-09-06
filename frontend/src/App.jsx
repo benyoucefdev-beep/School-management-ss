@@ -53,7 +53,7 @@ const queryClient = new QueryClient({
   },
 });
 
-const CACHE_VERSION = 'edumanage-v2';
+const CACHE_VERSION = 'edumanage-v3'; // bump to discard caches saved by older builds
 const persister = createSyncStoragePersister({
   storage: window.localStorage,
   key: CACHE_VERSION,
