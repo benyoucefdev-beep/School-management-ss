@@ -76,9 +76,33 @@ app.use('/api/finance',    require('./routes/finance'));
 app.use('/api/team',          require('./routes/team'));
 app.use('/api/notifications', require('./routes/notifications'));
 
-// Health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString(), service: 'EduManage API' });
+// Health check. Reports database reachability so a misconfigured DATABASE_URL
+// is visible immediately instead of surfacing as an opaque 500 on every page.
+// Deliberately exposes only the driver's error CODE (e.g. ENOTFOUND, 28P01) and
+// the host — never the connection string, user or password.
+app.get('/api/health', async (req, res) => {
+  const body = { status: 'ok', timestamp: new Date().toISOString(), service: 'EduManage API' };
+  const pool = require('./db');
+  try {
+    await pool.query('SELECT 1');
+    body.db = { reachable: true };
+  } catch (err) {
+    body.status = 'degraded';
+    let host = null;
+    try { host = new URL(process.env.DATABASE_URL).hostname; } catch { /* unset or unparseable */ }
+    body.db = {
+      reachable: false,
+      code: err.code || null,
+      host,
+      hint: err.code === 'ENOTFOUND'
+        ? 'Host does not resolve. Supabase direct hosts (db.<ref>.supabase.co) are not reachable from Vercel; use the pooler host on port 6543.'
+        : err.code === '28P01' ? 'Password authentication failed.'
+        : err.code === 'ETIMEDOUT' ? 'Host resolved but refused/timed out.'
+        : undefined,
+    };
+    return res.status(503).json(body);
+  }
+  res.json(body);
 });
 
 
