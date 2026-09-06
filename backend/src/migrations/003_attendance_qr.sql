@@ -11,6 +11,10 @@
 --   • students of legal age get their own portal instead of a guardian's
 -- ══════════════════════════════════════════════════════════════════════════════
 
+-- gen_random_bytes() lives in pgcrypto. gen_random_uuid() is built in on PG13+,
+-- but the scan codes need pgcrypto, so make sure it is present.
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 -- ── 1. Students: adult flag + a stable scan code ─────────────────────────────
 -- portal_token already exists and is unique, but it is a URL secret. The scan
 -- code is a separate, short, rotatable value printed on the student card, so
