@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState, useEffect, useRef } from 'react';
-import { Printer, RefreshCw, Upload, Trash2, CheckCircle2, Clock, XCircle, User } from 'lucide-react';
+import { Printer, RefreshCw, Upload, Trash2, User } from 'lucide-react';
 import api from '../lib/api';
 import toast from 'react-hot-toast';
 
@@ -77,9 +77,10 @@ export default function StudentCard({ student, onReissue }) {
   };
   useEffect(loadPhoto, [student.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const { data: summary } = useQuery({
-    queryKey: ['attendance-summary', student.id],
-    queryFn: () => api.get(`/attendance/summary/${student.id}`).then(r => r.data),
+  // A student may be enrolled in one or more courses; the card lists them.
+  const { data: courses = [] } = useQuery({
+    queryKey: ['student-subjects', student.id],
+    queryFn: () => api.get(`/students/${student.id}/subjects`).then(r => r.data),
     retry: false,
   });
 
@@ -106,14 +107,6 @@ export default function StudentCard({ student, onReissue }) {
       setBusy(false);
     }
   }
-
-  const Stat = ({ icon: Icon, label, value, color }) => ( // eslint-disable-line no-unused-vars
-    <div style={{ textAlign: 'center' }}>
-      <Icon size={13} style={{ color }} />
-      <div style={{ fontSize: '8pt', fontWeight: 800, color, lineHeight: 1.2 }}>{value ?? 0}</div>
-      <div style={{ fontSize: '5pt', color: '#6b7280', textTransform: 'uppercase' }}>{label}</div>
-    </div>
-  );
 
   return (
     <>
@@ -192,15 +185,27 @@ export default function StudentCard({ student, onReissue }) {
               <Field label="Guardian" value={student.father_phone} />
             </div>
 
-            <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: '2mm' }}>
-              {summary && (
-                <div style={{ display: 'flex', gap: '3mm' }}>
-                  <Stat icon={CheckCircle2} label="Present" value={summary.present} color="#059669" />
-                  <Stat icon={Clock}        label="Late"    value={summary.late}    color="#d97706" />
-                  <Stat icon={XCircle}      label="Absent"  value={summary.absent}  color="#dc2626" />
+            <div style={{ marginTop: 'auto' }}>
+              {courses.length > 0 && (
+                <div style={{ marginBottom: '1.2mm' }}>
+                  <div style={{ fontSize: '5.4pt', letterSpacing: '0.4pt', textTransform: 'uppercase', color: '#6b7280' }}>
+                    Courses ({courses.length})
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1mm', marginTop: '0.8mm' }}>
+                    {courses.slice(0, 6).map(c => (
+                      <span key={c.id} style={{
+                        fontSize: '5.6pt', fontWeight: 700, padding: '0.5mm 1.4mm', borderRadius: '1mm',
+                        background: `${c.color_code || '#4f46e5'}1f`, color: c.color_code || '#4f46e5',
+                        border: `0.2mm solid ${c.color_code || '#4f46e5'}55`,
+                      }}>{c.name}</span>
+                    ))}
+                    {courses.length > 6 && (
+                      <span style={{ fontSize: '5.6pt', color: '#6b7280' }}>+{courses.length - 6}</span>
+                    )}
+                  </div>
                 </div>
               )}
-              <div style={{ fontSize: '4.8pt', fontFamily: 'monospace', color: '#9ca3af', textAlign: 'right', wordBreak: 'break-all', maxWidth: '38mm' }}>
+              <div style={{ fontSize: '4.8pt', fontFamily: 'monospace', color: '#9ca3af', textAlign: 'right', wordBreak: 'break-all' }}>
                 {student.scan_code || ''}
               </div>
             </div>

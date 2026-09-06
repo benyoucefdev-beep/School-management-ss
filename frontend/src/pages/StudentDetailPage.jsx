@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, GraduationCap, Mail, Phone, Users, FileText, DollarSign, Trash2, Plus } from 'lucide-react';
 import api from '../lib/api';
 import StudentCard from '../components/StudentCard';
+import StudentCourses from '../components/StudentCourses';
 import toast from 'react-hot-toast';
 
 export default function StudentDetailPage() {
@@ -78,7 +79,7 @@ export default function StudentDetailPage() {
 
       {/* Tabs */}
       <div className="tabs" style={{ marginBottom: 24 }}>
-        {[['info', 'Info'], ['notes', 'Notes'], ['payments', 'Payments']].map(([key, label]) => (
+        {[['info', 'Info'], ['courses', 'Courses'], ['notes', 'Notes'], ['payments', 'Payments']].map(([key, label]) => (
           <button key={key} className={`tab ${tab === key ? 'tab-active' : ''}`} onClick={() => setTab(key)}>{label}</button>
         ))}
       </div>
@@ -130,6 +131,8 @@ export default function StudentDetailPage() {
       )}
 
       {/* Notes Tab */}
+      {tab === 'courses' && <StudentCourses studentId={id} />}
+
       {tab === 'notes' && (
         <div>
           <div className="card" style={{ marginBottom: 16 }}>
