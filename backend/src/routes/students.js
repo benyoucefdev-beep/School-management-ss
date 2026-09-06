@@ -217,6 +217,81 @@ router.post('/:id/uploads/:uploadId/notes', canCreate('students'), async (req, r
   res.status(201).json(n);
 });
 
+// ── PHOTO ─────────────────────────────────────────────────────────────────────
+// The client resizes to passport proportions and posts a data URI, so no
+// multipart handling or object-storage configuration is needed. An external
+// photo_url on the student row takes precedence when present.
+
+// GET /api/students/:id/photo — serves the image bytes
+router.get('/:id/photo', canView('students'), async (req, res) => {
+  try {
+    const { rows: [row] } = await pool.query(
+      `SELECT p.data, p.mime_type, s.photo_url
+         FROM students s
+         LEFT JOIN student_photos p ON p.student_id = s.id
+        WHERE s.id = $1`,
+      [req.params.id]
+    );
+    if (!row) return res.status(404).json({ error: 'Student not found' });
+    if (row.photo_url) return res.redirect(row.photo_url);
+    if (!row.data) return res.status(404).json({ error: 'No photo on file' });
+
+    res.setHeader('Content-Type', row.mime_type || 'image/jpeg');
+    res.setHeader('Cache-Control', 'private, max-age=60');
+    res.send(Buffer.from(row.data, 'base64'));
+  } catch (err) {
+    console.error('[students/photo:get]', err);
+    res.status(500).json({ error: 'Could not load photo' });
+  }
+});
+
+// POST /api/students/:id/photo — body: { data: "data:image/jpeg;base64,..." }
+router.post('/:id/photo', canEdit('students'), async (req, res) => {
+  const { data } = req.body;
+  if (!data) return res.status(400).json({ error: 'data (a data: URI) is required' });
+
+  const m = /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/.exec(String(data));
+  if (!m) return res.status(400).json({ error: 'Expected a base64 data URI for a JPEG, PNG or WebP image' });
+
+  const [, mime, b64] = m;
+  const bytes = Buffer.byteLength(b64, 'base64');
+  // Generous for a resized passport photo, small enough to keep rows sane.
+  if (bytes > 2 * 1024 * 1024) {
+    return res.status(413).json({ error: 'Photo must be under 2 MB after resizing' });
+  }
+
+  try {
+    const { rows: [student] } = await pool.query('SELECT id FROM students WHERE id = $1', [req.params.id]);
+    if (!student) return res.status(404).json({ error: 'Student not found' });
+
+    await pool.query(
+      `INSERT INTO student_photos (student_id, data, mime_type, byte_size, uploaded_by, updated_at)
+       VALUES ($1,$2,$3,$4,$5,NOW())
+       ON CONFLICT (student_id) DO UPDATE
+         SET data = EXCLUDED.data, mime_type = EXCLUDED.mime_type,
+             byte_size = EXCLUDED.byte_size, uploaded_by = EXCLUDED.uploaded_by,
+             updated_at = NOW()`,
+      [req.params.id, b64, mime, bytes, req.user.id]
+    );
+    res.status(201).json({ message: 'Photo saved', byte_size: bytes, mime_type: mime });
+  } catch (err) {
+    console.error('[students/photo:post]', err);
+    res.status(500).json({ error: 'Could not save photo' });
+  }
+});
+
+// DELETE /api/students/:id/photo
+router.delete('/:id/photo', canEdit('students'), async (req, res) => {
+  try {
+    await pool.query('DELETE FROM student_photos WHERE student_id = $1', [req.params.id]);
+    await pool.query('UPDATE students SET photo_url = NULL WHERE id = $1', [req.params.id]);
+    res.json({ message: 'Photo removed' });
+  } catch (err) {
+    console.error('[students/photo:delete]', err);
+    res.status(500).json({ error: 'Could not remove photo' });
+  }
+});
+
 // ── QR CODE ───────────────────────────────────────────────────────────────────
 // Encodes the student's scan_code — the value the gate scanner reads to record
 // attendance. Deliberately NOT the portal_token: reissuing a lost badge must not
