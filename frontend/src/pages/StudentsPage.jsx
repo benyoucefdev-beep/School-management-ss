@@ -12,7 +12,7 @@ export default function StudentsPage() {
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ full_name: '', email: '', phone: '', grade: '', group_id: '' });
 
-  const { data: students = [], isLoading } = useQuery({
+  const { data: students = [], isLoading, isError, error } = useQuery({
     queryKey: ['students', search],
     queryFn: () => api.get('/students', { params: { search, limit: 100 } }).then(r => (Array.isArray(r.data) ? r.data : r.data?.data ?? r.data?.students ?? [])),
   });
@@ -51,6 +51,16 @@ export default function StudentsPage() {
           </button>
         </div>
       </div>
+
+      {isError && (
+        <div className="card" style={{ padding: 20, marginBottom: 20, border: '1px solid var(--danger)', background: 'var(--danger-bg)' }}>
+          <strong style={{ color: 'var(--danger)' }}>Could not load students</strong>
+          <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>
+            {error?.response?.status ? `The server returned HTTP ${error.response.status}.` : 'The server could not be reached.'}
+            {' '}This is a server problem, not an empty list.
+          </div>
+        </div>
+      )}
 
       {/* Search */}
       <div className="card" style={{ padding: '12px 16px', marginBottom: 20 }}>

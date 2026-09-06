@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { Menu, X, User, LogOut, ChevronDown, Settings } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import RoleGuard from './components/RoleGuard';
+import ErrorBoundary from './components/ErrorBoundary';
 import NotificationBell from './components/NotificationBell';
 import { ROLE_DEFAULT_PATH } from './config/roleNav';
 import { useAutoSubscribe } from './components/PushSubscriptionHandler';
@@ -217,7 +218,9 @@ export default function App() {
       <BrowserRouter>
         <AuthProvider>
           <Suspense fallback={<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}><div className="loading-spinner" /></div>}>
-            <AppRoutes />
+            <ErrorBoundary>
+              <AppRoutes />
+            </ErrorBoundary>
           </Suspense>
           <Toaster
             position="bottom-right"
