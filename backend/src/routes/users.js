@@ -2,13 +2,14 @@ const router = require('express').Router();
 const bcrypt = require('bcryptjs');
 const pool = require('../db');
 const { authenticate, authorize } = require('../middleware/auth');
+const { isStaff } = require('../middleware/rbac');
 const { computeUsersTaskStatus } = require('../services/taskStatus');
 
 // Authenticate all routes
 router.use(authenticate);
 
 // GET /api/users - task-based status for all team members (admin uses this to see who is free)
-router.get('/', async (req, res) => {
+router.get('/', isStaff(), async (req, res) => {
   try {
     const { rows } = await pool.query(
       'SELECT id, name, email, role, photo_url, task_status, next_task_info, manual_available, created_at FROM users ORDER BY created_at DESC'
@@ -20,10 +21,10 @@ router.get('/', async (req, res) => {
 });
 
 // POST /api/users/refresh-task-status — admin triggers immediate task-status recompute for all members
-router.post('/refresh-task-status', authorize('admin'), async (req, res) => {
+router.post('/refresh-task-status', isStaff(), authorize('admin'), async (req, res) => {
   try {
     const { rows: users } = await pool.query(
-      `SELECT id FROM users WHERE role NOT IN ('client', 'supplier')`
+      `SELECT id FROM users WHERE role IN ('admin', 'manager', 'member')`
     );
     const userIds = users.map(u => u.id);
     if (userIds.length > 0) {

@@ -1,11 +1,12 @@
 const router = require('express').Router();
 const pool   = require('../db');
 const { authenticate } = require('../middleware/auth');
+const { canView, canCreate, canEdit, canDelete } = require('../middleware/rbac');
 
 router.use(authenticate);
 
 // ── GET /api/subjects ────────────────────────────────────────────
-router.get('/', async (req, res) => {
+router.get('/', canView('classes'), async (req, res) => {
   try {
     const { rows } = await pool.query(`
       SELECT s.*,
@@ -17,7 +18,7 @@ router.get('/', async (req, res) => {
         ) AS teachers
       FROM subjects s
       LEFT JOIN subject_teachers st ON st.subject_id = s.id
-      LEFT JOIN suppliers sup ON sup.id = st.teacher_id
+      LEFT JOIN teachers sup ON sup.id = st.teacher_id
       GROUP BY s.id
       ORDER BY s.name ASC
     `);
@@ -26,7 +27,7 @@ router.get('/', async (req, res) => {
 });
 
 // ── GET /api/subjects/:id ────────────────────────────────────────
-router.get('/:id', async (req, res) => {
+router.get('/:id', canView('classes'), async (req, res) => {
   try {
     const { rows: [subject] } = await pool.query(
       'SELECT * FROM subjects WHERE id = $1', [req.params.id]
@@ -34,16 +35,16 @@ router.get('/:id', async (req, res) => {
     if (!subject) return res.status(404).json({ error: 'Subject not found' });
 
     const { rows: teachers } = await pool.query(`
-      SELECT sup.id, sup.name, sup.contact_email, sup.contact_phone
-      FROM suppliers sup
+      SELECT sup.id, sup.name, sup.email AS contact_email, sup.phone AS contact_phone
+      FROM teachers sup
       INNER JOIN subject_teachers st ON st.teacher_id = sup.id
       WHERE st.subject_id = $1
     `, [req.params.id]);
 
     const { rows: payments } = await pool.query(`
-      SELECT sp.*, c.company_name AS student_name
+      SELECT sp.*, stu.full_name AS student_name
       FROM subject_payments sp
-      LEFT JOIN clients c ON c.id = sp.student_id
+      LEFT JOIN students stu ON stu.id = sp.student_id
       WHERE sp.subject_id = $1
       ORDER BY sp.due_date DESC
       LIMIT 50
@@ -54,7 +55,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // ── POST /api/subjects ───────────────────────────────────────────
-router.post('/', async (req, res) => {
+router.post('/', canCreate('classes'), async (req, res) => {
   const { name, name_ar, description, color_code, payment_due_day, monthly_fee, hours_per_week } = req.body;
   if (!name) return res.status(400).json({ error: 'name is required' });
   try {
@@ -69,7 +70,7 @@ router.post('/', async (req, res) => {
 });
 
 // ── PUT /api/subjects/:id ────────────────────────────────────────
-router.put('/:id', async (req, res) => {
+router.put('/:id', canEdit('classes'), async (req, res) => {
   const { name, name_ar, description, color_code, payment_due_day, monthly_fee, hours_per_week, is_active } = req.body;
   try {
     const { rows: [s] } = await pool.query(`
@@ -90,7 +91,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // ── DELETE /api/subjects/:id ─────────────────────────────────────
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', canDelete('classes'), async (req, res) => {
   try {
     await pool.query('DELETE FROM subjects WHERE id = $1', [req.params.id]);
     res.json({ message: 'Subject deleted' });
@@ -98,7 +99,7 @@ router.delete('/:id', async (req, res) => {
 });
 
 // ── POST /api/subjects/:id/teachers — assign teacher ────────────
-router.post('/:id/teachers', async (req, res) => {
+router.post('/:id/teachers', canEdit('teachers'), async (req, res) => {
   const { teacher_id } = req.body;
   if (!teacher_id) return res.status(400).json({ error: 'teacher_id is required' });
   try {
@@ -111,7 +112,7 @@ router.post('/:id/teachers', async (req, res) => {
 });
 
 // ── DELETE /api/subjects/:id/teachers/:teacherId ─────────────────
-router.delete('/:id/teachers/:teacherId', async (req, res) => {
+router.delete('/:id/teachers/:teacherId', canEdit('teachers'), async (req, res) => {
   try {
     await pool.query(
       'DELETE FROM subject_teachers WHERE subject_id=$1 AND teacher_id=$2',
@@ -122,13 +123,13 @@ router.delete('/:id/teachers/:teacherId', async (req, res) => {
 });
 
 // ── GET /api/subjects/:id/payments ───────────────────────────────
-router.get('/:id/payments', async (req, res) => {
+router.get('/:id/payments', canView('finance'), async (req, res) => {
   const { status } = req.query;
   try {
     let query = `
-      SELECT sp.*, c.company_name AS student_name
+      SELECT sp.*, stu.full_name AS student_name
       FROM subject_payments sp
-      LEFT JOIN clients c ON c.id = sp.student_id
+      LEFT JOIN students stu ON stu.id = sp.student_id
       WHERE sp.subject_id = $1
     `;
     const params = [req.params.id];
@@ -140,7 +141,7 @@ router.get('/:id/payments', async (req, res) => {
 });
 
 // ── POST /api/subjects/:id/payments ──────────────────────────────
-router.post('/:id/payments', async (req, res) => {
+router.post('/:id/payments', canCreate('finance'), async (req, res) => {
   const { student_id, amount, due_date, notes } = req.body;
   if (!student_id || !due_date) return res.status(400).json({ error: 'student_id and due_date are required' });
   try {
@@ -154,7 +155,7 @@ router.post('/:id/payments', async (req, res) => {
 });
 
 // ── PUT /api/subjects/payments/:paymentId — mark paid/overdue ────
-router.put('/payments/:paymentId', async (req, res) => {
+router.put('/payments/:paymentId', canEdit('finance'), async (req, res) => {
   const { status, paid_date, notes } = req.body;
   try {
     const { rows: [p] } = await pool.query(`

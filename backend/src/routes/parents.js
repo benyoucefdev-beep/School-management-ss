@@ -3,6 +3,7 @@ const pool    = require('../db');
 const jwt     = require('jsonwebtoken');
 const bcrypt  = require('bcryptjs');
 const { authenticate } = require('../middleware/auth');
+const { canView, canCreate, canEdit, canDelete } = require('../middleware/rbac');
 
 const PARENT_SECRET = process.env.PARENT_JWT_SECRET || process.env.JWT_SECRET;
 
@@ -32,7 +33,7 @@ router.post('/login', async (req, res) => {
 
     const valid = parent.password_hash
       ? await bcrypt.compare(password, parent.password_hash)
-      : password === parent.password_hash; // plain fallback for dev
+      : false;
     if (!valid) return res.status(401).json({ error: 'Invalid email or password' });
 
     const token = jwt.sign(
@@ -52,16 +53,16 @@ router.post('/login', async (req, res) => {
 router.get('/me/children', parentAuth, async (req, res) => {
   try {
     const { rows } = await pool.query(`
-      SELECT c.id, c.company_name AS name, c.contact_email, c.student_phone,
-             c.father_phone, c.date_of_birth, c.level,
+      SELECT stu.id, stu.full_name AS name, stu.email AS contact_email, stu.student_phone,
+             stu.father_phone, stu.date_of_birth, stu.level,
              g.name AS group_name,
-             (SELECT COUNT(*) FROM absences a WHERE a.student_id = c.id)::int AS absence_count,
-             (SELECT COUNT(*) FROM subject_payments sp WHERE sp.student_id = c.id AND sp.status = 'pending')::int AS pending_payments
-      FROM clients c
-      INNER JOIN parent_students ps ON ps.student_id = c.id
-      LEFT JOIN groups g ON g.id = c.group_id
+             (SELECT COUNT(*) FROM absences a WHERE a.student_id = stu.id)::int AS absence_count,
+             (SELECT COUNT(*) FROM subject_payments sp WHERE sp.student_id = stu.id AND sp.status = 'pending')::int AS pending_payments
+      FROM students stu
+      INNER JOIN parent_students ps ON ps.student_id = stu.id
+      LEFT JOIN groups g ON g.id = stu.group_id
       WHERE ps.parent_id = $1
-      ORDER BY c.company_name ASC
+      ORDER BY stu.full_name ASC
     `, [req.parent.id]);
     res.json(rows);
   } catch (err) { res.status(500).json({ error: err.message }); }
@@ -113,17 +114,17 @@ router.get('/me/children/:studentId/payments', parentAuth, async (req, res) => {
 // ════════════════════════════════════════════════════════════════
 
 // GET /api/parents — list all parents (admin)
-router.get('/', authenticate, async (req, res) => {
+router.get('/', authenticate, canView('parents'), async (req, res) => {
   try {
     const { rows } = await pool.query(`
       SELECT p.*,
         COALESCE(
-          json_agg(json_build_object('id', c.id, 'name', c.company_name))
-          FILTER (WHERE c.id IS NOT NULL), '[]'
+          json_agg(json_build_object('id', stu.id, 'name', stu.full_name))
+          FILTER (WHERE stu.id IS NOT NULL), '[]'
         ) AS children
       FROM parents p
       LEFT JOIN parent_students ps ON ps.parent_id = p.id
-      LEFT JOIN clients c ON c.id = ps.student_id
+      LEFT JOIN students stu ON stu.id = ps.student_id
       GROUP BY p.id
       ORDER BY p.name ASC
     `);
@@ -132,7 +133,7 @@ router.get('/', authenticate, async (req, res) => {
 });
 
 // POST /api/parents — create parent (admin)
-router.post('/', authenticate, async (req, res) => {
+router.post('/', authenticate, canCreate('parents'), async (req, res) => {
   const { name, email, phone, password, notes } = req.body;
   if (!name) return res.status(400).json({ error: 'name is required' });
   try {
@@ -147,7 +148,7 @@ router.post('/', authenticate, async (req, res) => {
 });
 
 // PUT /api/parents/:id — update parent (admin)
-router.put('/:id', authenticate, async (req, res) => {
+router.put('/:id', authenticate, canEdit('parents'), async (req, res) => {
   const { name, email, phone, password, notes, is_active } = req.body;
   try {
     const hash = password ? await bcrypt.hash(password, 10) : undefined;
@@ -168,7 +169,7 @@ router.put('/:id', authenticate, async (req, res) => {
 });
 
 // POST /api/parents/:id/children — link child to parent (admin)
-router.post('/:id/children', authenticate, async (req, res) => {
+router.post('/:id/children', authenticate, canEdit('parents'), async (req, res) => {
   const { student_id, relation } = req.body;
   if (!student_id) return res.status(400).json({ error: 'student_id is required' });
   try {
@@ -181,7 +182,7 @@ router.post('/:id/children', authenticate, async (req, res) => {
 });
 
 // DELETE /api/parents/:id/children/:studentId
-router.delete('/:id/children/:studentId', authenticate, async (req, res) => {
+router.delete('/:id/children/:studentId', authenticate, canEdit('parents'), async (req, res) => {
   try {
     await pool.query(
       'DELETE FROM parent_students WHERE parent_id=$1 AND student_id=$2',
@@ -194,13 +195,13 @@ router.delete('/:id/children/:studentId', authenticate, async (req, res) => {
 // ── ABSENCES (admin CRUD) ────────────────────────────────────────
 
 // GET /api/parents/absences?student_id=&subject_id=
-router.get('/absences', authenticate, async (req, res) => {
+router.get('/absences', authenticate, canView('students'), async (req, res) => {
   const { student_id, subject_id } = req.query;
   try {
     let q = `
-      SELECT a.*, c.company_name AS student_name, s.name AS subject_name
+      SELECT a.*, stu.full_name AS student_name, s.name AS subject_name
       FROM absences a
-      LEFT JOIN clients c ON c.id = a.student_id
+      LEFT JOIN students stu ON stu.id = a.student_id
       LEFT JOIN subjects s ON s.id = a.subject_id
       WHERE 1=1
     `;
@@ -214,7 +215,7 @@ router.get('/absences', authenticate, async (req, res) => {
 });
 
 // POST /api/parents/absences
-router.post('/absences', authenticate, async (req, res) => {
+router.post('/absences', authenticate, canEdit('students'), async (req, res) => {
   const { student_id, subject_id, absence_date, is_justified, justification } = req.body;
   if (!student_id || !absence_date) return res.status(400).json({ error: 'student_id and absence_date are required' });
   try {
@@ -228,7 +229,7 @@ router.post('/absences', authenticate, async (req, res) => {
 });
 
 // PUT /api/parents/absences/:id
-router.put('/absences/:id', authenticate, async (req, res) => {
+router.put('/absences/:id', authenticate, canEdit('students'), async (req, res) => {
   const { is_justified, justification, notified_parent } = req.body;
   try {
     const { rows: [a] } = await pool.query(`
@@ -244,7 +245,7 @@ router.put('/absences/:id', authenticate, async (req, res) => {
 });
 
 // DELETE /api/parents/absences/:id
-router.delete('/absences/:id', authenticate, async (req, res) => {
+router.delete('/absences/:id', authenticate, canDelete('students'), async (req, res) => {
   try {
     await pool.query('DELETE FROM absences WHERE id = $1', [req.params.id]);
     res.json({ message: 'Absence deleted' });

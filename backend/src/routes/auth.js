@@ -44,7 +44,7 @@ router.post('/login', async (req, res) => {
 
     // ── Step 2: Student portal (portal_username) ─────────────────────────────
     const { rows: studentRows } = await pool.query(
-      `SELECT id, full_name, portal_token, portal_username, portal_password_hash, portal_plain_password
+      `SELECT id, full_name, portal_token, portal_username, portal_password_hash
        FROM students WHERE LOWER(portal_username) = $1`,
       [loginInput]
     );
@@ -54,8 +54,6 @@ router.post('/login', async (req, res) => {
       let valid = false;
       if (student.portal_password_hash) {
         valid = await bcrypt.compare(password, student.portal_password_hash);
-      } else if (student.portal_plain_password) {
-        valid = password === student.portal_plain_password;
       }
       if (!valid) return res.status(401).json({ error: 'Invalid username or password' });
 
@@ -72,7 +70,7 @@ router.post('/login', async (req, res) => {
 
     // ── Step 3: Teacher portal (portal_username) ─────────────────────────────
     const { rows: teacherRows } = await pool.query(
-      `SELECT id, name, portal_token, portal_username, portal_password_hash, portal_plain_password
+      `SELECT id, name, portal_token, portal_username, portal_password_hash
        FROM teachers WHERE LOWER(portal_username) = $1`,
       [loginInput]
     );
@@ -82,8 +80,6 @@ router.post('/login', async (req, res) => {
       let valid = false;
       if (teacher.portal_password_hash) {
         valid = await bcrypt.compare(password, teacher.portal_password_hash);
-      } else if (teacher.portal_plain_password) {
-        valid = password === teacher.portal_plain_password;
       }
       if (!valid) return res.status(401).json({ error: 'Invalid username or password' });
 

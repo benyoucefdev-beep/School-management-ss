@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const { authenticate } = require('../middleware/auth');
 const { isAdmin } = require('../middleware/rbac');
 
-const VALID_ROLES = ['admin', 'graphic_designer', 'software_developer', 'printer', 'ads_manager'];
+const VALID_ROLES = ['admin', 'manager', 'member'];
 
 router.use(authenticate, isAdmin());
 
@@ -15,10 +15,9 @@ router.get('/', async (req, res) => {
   try {
     const { rows } = await pool.query(
       `SELECT u.id, u.name, u.username, u.email, u.role, u.photo_url, u.created_at,
-         u.plain_password,
-         COUNT(t.id) FILTER (WHERE t.status NOT IN ('done', 'completed')) AS open_task_count
+         COUNT(c.id) FILTER (WHERE c.status NOT IN ('done', 'completed')) AS open_task_count
        FROM users u
-       LEFT JOIN tasks t ON t.assignee_id = u.id
+       LEFT JOIN classes c ON c.created_by = u.id
        GROUP BY u.id
        ORDER BY u.created_at DESC`
     );
@@ -33,9 +32,9 @@ router.get('/workload', async (req, res) => {
   try {
     const { rows } = await pool.query(
       `SELECT u.id AS user_id, u.name,
-         COUNT(t.id) FILTER (WHERE t.status NOT IN ('done')) AS open_task_count
+         COUNT(c.id) FILTER (WHERE c.status NOT IN ('done')) AS open_task_count
        FROM users u
-       LEFT JOIN tasks t ON t.assignee_id = u.id
+       LEFT JOIN classes c ON c.created_by = u.id
        GROUP BY u.id
        ORDER BY open_task_count DESC`
     );
@@ -60,10 +59,10 @@ router.post('/', async (req, res) => {
   try {
     const hash = await bcrypt.hash(password, 12);
     const { rows } = await pool.query(
-      `INSERT INTO users (name, username, email, password_hash, role, plain_password)
-       VALUES ($1, $2, $3, $4, $5, $6)
+      `INSERT INTO users (name, username, email, password_hash, role)
+       VALUES ($1, $2, $3, $4, $5)
        RETURNING id, name, username, email, role, photo_url, created_at`,
-      [name, username.toLowerCase().trim(), email?.toLowerCase()?.trim(), hash, role, password]
+      [name, username.toLowerCase().trim(), email?.toLowerCase()?.trim(), hash, role]
     );
     res.status(201).json(rows[0]);
   } catch (err) {
@@ -107,8 +106,8 @@ router.post('/:id/reset-password', async (req, res) => {
   try {
     const hash = await bcrypt.hash(new_password, 12);
     await pool.query(
-      'UPDATE users SET password_hash = $1, plain_password = $2 WHERE id = $3',
-      [hash, new_password, req.params.id]
+      'UPDATE users SET password_hash = $1 WHERE id = $2',
+      [hash, req.params.id]
     );
     res.json({ message: 'Password reset successfully' });
   } catch (err) {

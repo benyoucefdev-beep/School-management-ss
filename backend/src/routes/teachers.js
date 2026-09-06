@@ -68,14 +68,14 @@ router.post('/', canCreate('teachers'), async (req, res) => {
   const { name, email, phone, speciality, address, notes, portal_username, portal_password, payment_percentage } = req.body;
   if (!name) return res.status(400).json({ error: 'name is required' });
   try {
-    let hash = null, plain = null;
-    if (portal_password) { hash = await bcrypt.hash(portal_password, 10); plain = portal_password; }
+    let hash = null;
+    if (portal_password) { hash = await bcrypt.hash(portal_password, 10); }
 
     const { rows: [t] } = await pool.query(`
-      INSERT INTO teachers (name, email, phone, speciality, address, notes, portal_username, portal_password_hash, portal_plain_password, payment_percentage)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+      INSERT INTO teachers (name, email, phone, speciality, address, notes, portal_username, portal_password_hash, payment_percentage)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
       RETURNING *
-    `, [name, email||null, phone||null, speciality||null, address||null, notes||null, portal_username||null, hash, plain, payment_percentage ?? 70]);
+    `, [name, email||null, phone||null, speciality||null, address||null, notes||null, portal_username||null, hash, payment_percentage ?? 70]);
 
     res.status(201).json(t);
   } catch (err) { res.status(500).json({ error: err.message }); }
@@ -85,8 +85,8 @@ router.post('/', canCreate('teachers'), async (req, res) => {
 router.put('/:id', canEdit('teachers'), async (req, res) => {
   const { name, email, phone, speciality, address, notes, is_active, portal_username, portal_password, payment_percentage } = req.body;
   try {
-    let hash = null, plain = null;
-    if (portal_password) { hash = await bcrypt.hash(portal_password, 10); plain = portal_password; }
+    let hash = null;
+    if (portal_password) { hash = await bcrypt.hash(portal_password, 10); }
 
     const { rows: [t] } = await pool.query(`
       UPDATE teachers SET
@@ -99,12 +99,11 @@ router.put('/:id', canEdit('teachers'), async (req, res) => {
         is_active     = COALESCE($7, is_active),
         portal_username = COALESCE($8, portal_username),
         portal_password_hash  = CASE WHEN $9::text IS NOT NULL THEN $9 ELSE portal_password_hash END,
-        portal_plain_password = CASE WHEN $10::text IS NOT NULL THEN $10 ELSE portal_plain_password END,
-        payment_percentage    = COALESCE($11, payment_percentage),
+        payment_percentage    = COALESCE($10, payment_percentage),
         updated_at    = NOW()
-      WHERE id = $12
+      WHERE id = $11
       RETURNING *
-    `, [name, email, phone, speciality, address, notes, is_active, portal_username, hash, plain, payment_percentage ?? null, req.params.id]);
+    `, [name, email, phone, speciality, address, notes, is_active, portal_username, hash, payment_percentage ?? null, req.params.id]);
 
     if (!t) return res.status(404).json({ error: 'Teacher not found' });
     res.json(t);

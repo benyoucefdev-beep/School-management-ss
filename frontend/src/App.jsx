@@ -37,8 +37,10 @@ const SettingsPage       = lazy(() => import('./pages/SettingsPage'));
 const ProfilePage        = lazy(() => import('./pages/ProfilePage'));
 const UnauthorizedPage   = lazy(() => import('./pages/UnauthorizedPage'));
 
-const ADMIN_ROLES = ['admin', 'owner', 'manager'];
-const ALL_ROLES   = ['admin', 'owner', 'manager', 'member'];
+// Staff roles. 'owner'/'staff' are legacy aliases kept so existing accounts work.
+const MANAGER_UP = ['admin', 'owner', 'manager'];   // run the school
+const ALL_STAFF  = ['admin', 'owner', 'manager', 'member', 'staff'];
+const ADMIN_ONLY = ['admin', 'owner'];
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -186,23 +188,23 @@ function AppRoutes() {
       <Route path="/profile"   element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
 
       {/* School — admin/manager */}
-      <Route path="/students"    element={<ProtectedRoute><RoleGuard allowedRoles={ADMIN_ROLES}><StudentsPage /></RoleGuard></ProtectedRoute>} />
-      <Route path="/students/:id" element={<ProtectedRoute><RoleGuard allowedRoles={ADMIN_ROLES}><StudentDetailPage /></RoleGuard></ProtectedRoute>} />
-      <Route path="/teachers"    element={<ProtectedRoute><RoleGuard allowedRoles={ADMIN_ROLES}><TeachersPage /></RoleGuard></ProtectedRoute>} />
-      <Route path="/teachers/:id" element={<ProtectedRoute><RoleGuard allowedRoles={ADMIN_ROLES}><TeacherDetailPage /></RoleGuard></ProtectedRoute>} />
-      <Route path="/classes"     element={<ProtectedRoute><RoleGuard allowedRoles={ALL_ROLES}><ClassesPage /></RoleGuard></ProtectedRoute>} />
-      <Route path="/groups"      element={<ProtectedRoute><RoleGuard allowedRoles={ADMIN_ROLES}><GroupsPage /></RoleGuard></ProtectedRoute>} />
-      <Route path="/subjects"    element={<ProtectedRoute><RoleGuard allowedRoles={ADMIN_ROLES}><SubjectsPage /></RoleGuard></ProtectedRoute>} />
-      <Route path="/parents"     element={<ProtectedRoute><RoleGuard allowedRoles={ADMIN_ROLES}><ParentsPage /></RoleGuard></ProtectedRoute>} />
+      <Route path="/students"    element={<ProtectedRoute><RoleGuard allowedRoles={MANAGER_UP}><StudentsPage /></RoleGuard></ProtectedRoute>} />
+      <Route path="/students/:id" element={<ProtectedRoute><RoleGuard allowedRoles={MANAGER_UP}><StudentDetailPage /></RoleGuard></ProtectedRoute>} />
+      <Route path="/teachers"    element={<ProtectedRoute><RoleGuard allowedRoles={MANAGER_UP}><TeachersPage /></RoleGuard></ProtectedRoute>} />
+      <Route path="/teachers/:id" element={<ProtectedRoute><RoleGuard allowedRoles={MANAGER_UP}><TeacherDetailPage /></RoleGuard></ProtectedRoute>} />
+      <Route path="/classes"     element={<ProtectedRoute><RoleGuard allowedRoles={ALL_STAFF}><ClassesPage /></RoleGuard></ProtectedRoute>} />
+      <Route path="/groups"      element={<ProtectedRoute><RoleGuard allowedRoles={MANAGER_UP}><GroupsPage /></RoleGuard></ProtectedRoute>} />
+      <Route path="/subjects"    element={<ProtectedRoute><RoleGuard allowedRoles={MANAGER_UP}><SubjectsPage /></RoleGuard></ProtectedRoute>} />
+      <Route path="/parents"     element={<ProtectedRoute><RoleGuard allowedRoles={MANAGER_UP}><ParentsPage /></RoleGuard></ProtectedRoute>} />
 
       {/* Finance — admin only */}
-      <Route path="/finance/invoices" element={<ProtectedRoute><RoleGuard allowedRoles={['admin']}><InvoicesPage /></RoleGuard></ProtectedRoute>} />
-      <Route path="/finance/expenses" element={<ProtectedRoute><RoleGuard allowedRoles={['admin']}><ExpensesPage /></RoleGuard></ProtectedRoute>} />
-      <Route path="/finance/pl"       element={<ProtectedRoute><RoleGuard allowedRoles={['admin']}><PLPage /></RoleGuard></ProtectedRoute>} />
+      <Route path="/finance/invoices" element={<ProtectedRoute><RoleGuard allowedRoles={MANAGER_UP}><InvoicesPage /></RoleGuard></ProtectedRoute>} />
+      <Route path="/finance/expenses" element={<ProtectedRoute><RoleGuard allowedRoles={MANAGER_UP}><ExpensesPage /></RoleGuard></ProtectedRoute>} />
+      <Route path="/finance/pl"       element={<ProtectedRoute><RoleGuard allowedRoles={MANAGER_UP}><PLPage /></RoleGuard></ProtectedRoute>} />
 
       {/* Management — admin only */}
-      <Route path="/team"     element={<ProtectedRoute><RoleGuard allowedRoles={['admin']}><TeamPage /></RoleGuard></ProtectedRoute>} />
-      <Route path="/settings" element={<ProtectedRoute><RoleGuard allowedRoles={['admin']}><SettingsPage /></RoleGuard></ProtectedRoute>} />
+      <Route path="/team"     element={<ProtectedRoute><RoleGuard allowedRoles={ADMIN_ONLY}><TeamPage /></RoleGuard></ProtectedRoute>} />
+      <Route path="/settings" element={<ProtectedRoute><RoleGuard allowedRoles={ADMIN_ONLY}><SettingsPage /></RoleGuard></ProtectedRoute>} />
 
       {/* Root & catch-all */}
       <Route path="/"  element={<RootRedirect />} />

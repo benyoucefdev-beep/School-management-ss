@@ -70,6 +70,24 @@ DROP VIEW IF EXISTS classes   CASCADE;
 
 -- ── STEP 2: RECREATE — SYSTEM / AUTH ─────────────────────────────────────────
 
+-- users: staff accounts (admin / manager / member). The original migration
+-- referenced users(id) from 12 foreign keys but never created the table, so a
+-- from-scratch `npm run migrate` failed. This makes the schema self-contained.
+CREATE TABLE IF NOT EXISTS users (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name          VARCHAR(150) NOT NULL,
+  email         VARCHAR(255) UNIQUE,
+  username      VARCHAR(100) UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  role          VARCHAR(50)  NOT NULL DEFAULT 'member',
+  photo_url        TEXT,
+  task_status      VARCHAR(50),
+  next_task_info   TEXT,
+  manual_available BOOLEAN DEFAULT TRUE,
+  created_at    TIMESTAMPTZ DEFAULT NOW()
+);
+
+
 CREATE TABLE role_permissions (
   role VARCHAR(50) PRIMARY KEY,
   students  JSONB DEFAULT '{"view":false,"create":false,"edit":false,"delete":false}'::jsonb,
@@ -528,6 +546,10 @@ CREATE INDEX IF NOT EXISTS idx_invoices_student    ON invoices(student_id);
 CREATE INDEX IF NOT EXISTS idx_invoices_status     ON invoices(status);
 CREATE INDEX IF NOT EXISTS idx_activity_student    ON activity_log(student_id);
 CREATE INDEX IF NOT EXISTS idx_notifications_user  ON notifications(user_id);
+CREATE INDEX IF NOT EXISTS idx_users_lower_email     ON users (LOWER(email));
+CREATE INDEX IF NOT EXISTS idx_users_lower_username  ON users (LOWER(username));
+CREATE INDEX IF NOT EXISTS idx_students_portal_user  ON students (LOWER(portal_username));
+CREATE INDEX IF NOT EXISTS idx_teachers_portal_user  ON teachers (LOWER(portal_username));
 CREATE INDEX IF NOT EXISTS idx_student_groups_grp  ON student_groups(group_id);
 
 -- ── DONE ──────────────────────────────────────────────────────────────────────

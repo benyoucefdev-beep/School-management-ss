@@ -1,11 +1,12 @@
 const router = require('express').Router();
 const pool   = require('../db');
 const { authenticate } = require('../middleware/auth');
+const { canView, canCreate, canEdit, canDelete } = require('../middleware/rbac');
 
 router.use(authenticate);
 
 // ── GET /api/groups ──────────────────────────────────────────────
-router.get('/', async (req, res) => {
+router.get('/', canView('classes'), async (req, res) => {
   try {
     const { rows } = await pool.query(`
       SELECT g.*,
@@ -20,7 +21,7 @@ router.get('/', async (req, res) => {
 });
 
 // ── GET /api/groups/:id ──────────────────────────────────────────
-router.get('/:id', async (req, res) => {
+router.get('/:id', canView('classes'), async (req, res) => {
   try {
     const { rows: [group] } = await pool.query(
       'SELECT * FROM groups WHERE id = $1', [req.params.id]
@@ -29,12 +30,12 @@ router.get('/:id', async (req, res) => {
 
     // Students in this group
     const { rows: students } = await pool.query(`
-      SELECT c.id, c.company_name AS name, c.contact_email, c.contact_phone,
-             c.student_phone, c.father_phone, c.level
-      FROM clients c
-      INNER JOIN student_groups sg ON sg.student_id = c.id
+      SELECT s.id, s.full_name AS name, s.email AS contact_email, s.phone AS contact_phone,
+             s.student_phone, s.father_phone, s.level
+      FROM students s
+      INNER JOIN student_groups sg ON sg.student_id = s.id
       WHERE sg.group_id = $1
-      ORDER BY c.company_name ASC
+      ORDER BY s.full_name ASC
     `, [req.params.id]);
 
     res.json({ ...group, students });
@@ -42,7 +43,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // ── POST /api/groups ─────────────────────────────────────────────
-router.post('/', async (req, res) => {
+router.post('/', canCreate('classes'), async (req, res) => {
   const { name, level, academic_year, max_students, room, notes } = req.body;
   if (!name) return res.status(400).json({ error: 'name is required' });
   try {
@@ -56,7 +57,7 @@ router.post('/', async (req, res) => {
 });
 
 // ── PUT /api/groups/:id ──────────────────────────────────────────
-router.put('/:id', async (req, res) => {
+router.put('/:id', canEdit('classes'), async (req, res) => {
   const { name, level, academic_year, max_students, room, notes, is_active } = req.body;
   try {
     const { rows: [g] } = await pool.query(`
@@ -76,7 +77,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // ── DELETE /api/groups/:id ───────────────────────────────────────
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', canDelete('classes'), async (req, res) => {
   try {
     await pool.query('DELETE FROM groups WHERE id = $1', [req.params.id]);
     res.json({ message: 'Group deleted' });
@@ -84,7 +85,7 @@ router.delete('/:id', async (req, res) => {
 });
 
 // ── POST /api/groups/:id/students — enroll student in group ──────
-router.post('/:id/students', async (req, res) => {
+router.post('/:id/students', canEdit('students'), async (req, res) => {
   const { student_id } = req.body;
   if (!student_id) return res.status(400).json({ error: 'student_id is required' });
   try {
@@ -92,21 +93,21 @@ router.post('/:id/students', async (req, res) => {
       'INSERT INTO student_groups (group_id, student_id) VALUES ($1,$2) ON CONFLICT DO NOTHING',
       [req.params.id, student_id]
     );
-    // Also update the group_id on clients table
-    await pool.query('UPDATE clients SET group_id = $1 WHERE id = $2', [req.params.id, student_id]);
+    // Keep students.group_id in step with the join table
+    await pool.query('UPDATE students SET group_id = $1 WHERE id = $2', [req.params.id, student_id]);
     res.status(201).json({ message: 'Student enrolled in group' });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 // ── DELETE /api/groups/:id/students/:studentId ───────────────────
-router.delete('/:id/students/:studentId', async (req, res) => {
+router.delete('/:id/students/:studentId', canEdit('students'), async (req, res) => {
   try {
     await pool.query(
       'DELETE FROM student_groups WHERE group_id=$1 AND student_id=$2',
       [req.params.id, req.params.studentId]
     );
     await pool.query(
-      'UPDATE clients SET group_id = NULL WHERE id=$1 AND group_id=$2',
+      'UPDATE students SET group_id = NULL WHERE id=$1 AND group_id=$2',
       [req.params.studentId, req.params.id]
     );
     res.json({ message: 'Student removed from group' });

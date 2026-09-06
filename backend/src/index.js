@@ -8,7 +8,9 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 
 // ── Middleware ──────────────────────────────────────────────────
-// Modify line 10-13 in backend/src/index.js
+// Exact-match origins only. `startsWith` previously allowed
+// https://management.edumanage.app.attacker.com, and the blanket `.vercel.app`
+// rule allowed every Vercel deployment on the internet.
 const allowedOrigins = [
   process.env.FRONTEND_URL,
   'https://management.edumanage.app', // production custom domain
@@ -18,12 +20,15 @@ const allowedOrigins = [
   'http://localhost:3000',
 ].filter(Boolean);
 
+// Opt-in only, e.g. VERCEL_PREVIEW_ORIGIN=https://school-management-git-x.vercel.app
+if (process.env.VERCEL_PREVIEW_ORIGIN) {
+  allowedOrigins.push(...process.env.VERCEL_PREVIEW_ORIGIN.split(',').map(o => o.trim()));
+}
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin) return callback(null, true); // curl / Vercel serverless internal calls
-    if (allowedOrigins.some(o => origin.startsWith(o))) return callback(null, true);
-    if (origin.endsWith('.vercel.app')) return callback(null, true); // preview deployments
+    if (!origin) return callback(null, true); // curl / server-to-server calls
+    if (allowedOrigins.includes(origin)) return callback(null, true);
     callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
@@ -37,8 +42,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
 // ── Public Routes (no auth) ────────────────────────────────────
-app.use('/api/student-portal',  require('./routes/portal'));        // student portal (uses old portal.js)
-app.use('/api/teacher-portal',  require('./routes/supplier-portal')); // teacher portal
+// routes/portal.js and routes/supplier-portal.js do not exist in this repo.
+// They are mounted optionally further down; requiring them here crashed boot.
 
 // ── Core Routes ────────────────────────────────────────────────
 app.use('/api/auth',       require('./routes/auth'));
@@ -76,10 +81,15 @@ app.use((req, res) => {
   res.status(404).json({ error: `Route ${req.method} ${req.path} not found` });
 });
 
-// Global error handler
+// Global error handler. Details go to the server log, never to the client —
+// err.message routinely contains table and column names.
+// eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: 'Internal server error', message: err.message });
+  console.error('[error]', req.method, req.originalUrl, err.stack || err);
+  if (err && err.message === 'Not allowed by CORS') {
+    return res.status(403).json({ error: 'Origin not allowed' });
+  }
+  res.status(500).json({ error: 'Internal server error' });
 });
 
 
