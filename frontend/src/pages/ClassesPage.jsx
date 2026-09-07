@@ -16,7 +16,7 @@ export default function ClassesPage() {
   const qc = useQueryClient();
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
-  const [form, setForm] = useState({ name: '', description: '', teacher_id: '', group_id: '', subject_id: '', room: '' });
+  const [form, setForm] = useState({ description: '', teacher_id: '', group_id: '', subject_id: '', room: '' });
 
   const { data: classes = [], isLoading } = useQuery({
     queryKey: ['classes', search],
@@ -44,16 +44,23 @@ export default function ClassesPage() {
       qc.invalidateQueries({ queryKey: ['classes'] });
       toast.success('Class created');
       setShowModal(false);
-      setForm({ name: '', description: '', teacher_id: '', group_id: '', subject_id: '', room: '' });
+      setForm({ description: '', teacher_id: '', group_id: '', subject_id: '', room: '' });
     },
     onError: (e) => toast.error(e.response?.data?.error || 'Failed to create class'),
   });
 
-  const filtered = asArray(classes).filter(c =>
-    !search || c.name?.toLowerCase().includes(search.toLowerCase()) ||
-    c.teacher_name?.toLowerCase().includes(search.toLowerCase()) ||
-    c.subject_name?.toLowerCase().includes(search.toLowerCase())
-  );
+  const classLabel = (c) =>
+    c.title || [c.subject_name, c.group_name].filter(Boolean).join(' — ') || 'Untitled class';
+  const teacherLabel = (c) => (c.teachers || []).map(t => t.name).filter(Boolean).join(', ');
+
+  const filtered = asArray(classes).filter(c => {
+    if (!search) return true;
+    const q = search.toLowerCase();
+    return classLabel(c).toLowerCase().includes(q)
+        || teacherLabel(c).toLowerCase().includes(q)
+        || c.subject_name?.toLowerCase().includes(q)
+        || c.group_name?.toLowerCase().includes(q);
+  });
 
   return (
     <div>
@@ -107,11 +114,11 @@ export default function ClassesPage() {
                   <BookOpen size={20} style={{ color: 'var(--accent)' }} />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontWeight: 700, fontSize: 15, color: 'var(--text-primary)' }}>{cls.name}</div>
+                  <div style={{ fontWeight: 700, fontSize: 15, color: 'var(--text-primary)' }}>{classLabel(cls)}</div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 16px', marginTop: 4 }}>
-                    {cls.teacher_name && (
+                    {teacherLabel(cls) && (
                       <span style={{ fontSize: 13, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <Users size={12} /> {cls.teacher_name}
+                        <Users size={12} /> {teacherLabel(cls)}
                       </span>
                     )}
                     {cls.subject_name && (
@@ -145,10 +152,6 @@ export default function ClassesPage() {
             </div>
             <div className="modal-body">
               <div className="form-grid-2">
-                <div className="form-group" style={{ gridColumn: '1/-1' }}>
-                  <label className="form-label">Class Name *</label>
-                  <input className="form-input" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="e.g. Math – Group A, Monday" />
-                </div>
                 <div className="form-group">
                   <label className="form-label">Teacher</label>
                   <select className="form-select" value={form.teacher_id} onChange={e => setForm(f => ({ ...f, teacher_id: e.target.value }))}>
@@ -157,14 +160,14 @@ export default function ClassesPage() {
                   </select>
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Subject</label>
+                  <label className="form-label">Subject *</label>
                   <select className="form-select" value={form.subject_id} onChange={e => setForm(f => ({ ...f, subject_id: e.target.value }))}>
                     <option value="">— Select subject —</option>
                     {subjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                   </select>
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Group</label>
+                  <label className="form-label">Group *</label>
                   <select className="form-select" value={form.group_id} onChange={e => setForm(f => ({ ...f, group_id: e.target.value }))}>
                     <option value="">— Select group —</option>
                     {groups.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
@@ -182,7 +185,7 @@ export default function ClassesPage() {
             </div>
             <div className="modal-footer">
               <button className="btn btn-ghost" onClick={() => setShowModal(false)}>Cancel</button>
-              <button className="btn btn-primary" disabled={!form.name || createMutation.isPending} onClick={() => createMutation.mutate(form)}>
+              <button className="btn btn-primary" disabled={(!form.subject_id && !form.group_id) || createMutation.isPending} onClick={() => createMutation.mutate(form)}>
                 {createMutation.isPending ? 'Creating…' : 'Create Class'}
               </button>
             </div>

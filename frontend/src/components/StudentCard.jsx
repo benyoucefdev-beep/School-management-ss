@@ -70,9 +70,11 @@ export default function StudentCard({ student, onReissue }) {
     return () => { if (url) URL.revokeObjectURL(url); };
   }, [student.id, student.scan_code]);
 
+  // The photo response is cached for 60s, so a replacement would keep showing
+  // the old image. The cache-buster forces a fresh fetch after an upload.
   const loadPhoto = () => {
-    api.get(`/students/${student.id}/photo`, { responseType: 'blob' })
-      .then(r => setPhotoUrl(URL.createObjectURL(r.data)))
+    api.get(`/students/${student.id}/photo`, { responseType: 'blob', params: { v: Date.now() } })
+      .then(r => setPhotoUrl(prev => { if (prev) URL.revokeObjectURL(prev); return URL.createObjectURL(r.data); }))
       .catch(() => setPhotoUrl(null));
   };
   useEffect(loadPhoto, [student.id]); // eslint-disable-line react-hooks/exhaustive-deps
